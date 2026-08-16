@@ -1,0 +1,52 @@
+{
+  "writing": {
+    "idField": "id",
+    "titleField": "title",
+    "coverField": "cover_img_url"
+  },
+  "architectProject": {
+    "idField": "id",
+    "titleField": "title",
+    "coverField": "cover_img_url"
+  },
+  "event": {
+    "idField": "id",
+    "titleField": "title",
+    "coverField": "cover_img_url"
+  },
+  "exhibition": {
+    "idField": "id",
+    "titleField": "title",
+    "coverField": "cover_img_url"
+  },
+  "resume": {
+    "idField": "id",
+    "titleField": "description",
+    "coverField": null
+  },
+  "image": {
+    "idField": "id",
+    "titleField": "tag_en",
+    "coverField": "img_url"
+  },
+  "video": {
+    "idField": "id",
+    "titleField": "tag_en",
+    "coverField": "video_url"
+  },
+  "web": {
+    "idField": "id",
+    "titleField": "tag_en",
+    "coverField": "web_url"
+  },
+  "about": {
+    "idField": "id",
+    "titleField": "caption",
+    "coverField": "portrait_image_url"
+  },
+  "subscribe": {
+    "idField": "id",
+    "titleField": "email",
+    "coverField": null
+  }
+}

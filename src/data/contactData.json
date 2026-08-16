@@ -1,0 +1,26 @@
+[
+    {
+      "type": "email",
+      "value": "",
+      "labelEn": "",
+      "labelCn": "",
+      "href": "mailto:",
+      "target": "_self"
+    },
+    {
+      "type": "instagram",
+      "value": "",
+      "labelEn": "",
+      "labelCn": "",
+      "href": "",
+      "target": "_blank"
+    },
+    {
+      "type": "xiaohongshu",
+      "value": "",
+      "labelEn": "",
+      "labelCn": "",
+      "href": "",
+      "target": "_blank"
+    }
+  ]

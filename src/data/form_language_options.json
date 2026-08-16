@@ -1,0 +1,14 @@
+{
+  "language": [
+    {
+      "value": "EN",
+      "label_en": "English",
+      "label_cn": "英文"
+    },
+    {
+      "value": "CN", 
+      "label_en": "Chinese",
+      "label_cn": "中文"
+    }
+  ]
+} 

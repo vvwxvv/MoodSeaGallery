@@ -1,0 +1,38 @@
+{
+  "appInfo": {
+    "type": "Artist web",
+    "description": "A comprehensive artist web showcasing artwork, exhibitions, and creative portfolio",
+    "version": "1.0.0",
+    "author": "Artist",
+    "category": "Art & Creative",
+    "purpose": "Portfolio showcase and art gallery management"
+  },
+  "themes": {
+    "supported": ["light", "dark"],
+    "default": "light",
+    "autoDetect": true
+  },
+  "features": {
+    "showArtworkFilters": false
+  },
+  "seo": {
+    "title": "Artist Portfolio",
+    "description": "Contemporary artist portfolio showcasing original artwork and exhibitions",
+    "keywords": ["artist", "portfolio", "gallery", "artwork", "exhibitions", "contemporary art"]
+  },
+  "meta": {
+    "charSet": "utf-8",
+    "title": "Artist Portfolio",
+    "description": "Contemporary artist portfolio showcasing original artwork and exhibitions",
+    "og_image": "/placeholder.png",
+    "icon": "/favicon.ico",
+    "canonical": "",
+    "manifest": "/manifest.json",
+    "keywords": "artist, portfolio, gallery, artwork, exhibitions, contemporary art",
+    "author": "Artist",
+    "viewport": "width=device-width, initial-scale=1",
+    "apple_mobile_web_app_status_bar_style": "black-translucent",
+    "apple_mobile_web_app_capable": "yes",
+    "mobile_web_app_capable": "yes"
+  }
+}

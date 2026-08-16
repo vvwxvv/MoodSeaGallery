@@ -1,0 +1,132 @@
+{
+  "artwork": [
+    {
+      "id": "mark_artwork_slider",
+      "value": "Slider",
+      "label_en": "Slider",
+      "label_cn": "轮播"
+    },
+    {
+      "id": "mark_artwork_private",
+      "value": "Private",
+      "label_en": "Private",
+      "label_cn": "私密"
+    },
+    {
+      "id": "mark_artwork_feature",
+      "value": "Feature",
+      "label_en": "Feature",
+      "label_cn": "精选"
+    },
+    {
+      "id": "mark_artwork_none",
+      "value": "",
+      "label_en": "None",
+      "label_cn": "无"
+    }
+  ],
+  "image": [
+    {
+      "id": "mark_image_slider",
+      "value": "Slider",
+      "label_en": "Slider",
+      "label_cn": "轮播"
+    },
+    {
+      "id": "mark_image_private",
+      "value": "Private",
+      "label_en": "Private",
+      "label_cn": "私密"
+    },
+    {
+      "id": "mark_image_feature",
+      "value": "Feature",
+      "label_en": "Feature",
+      "label_cn": "精选"
+    },
+    {
+      "id": "mark_image_none",
+      "value": "",
+      "label_en": "None",
+      "label_cn": "无"
+    }
+  ],
+  "video": [
+    {
+      "id": "mark_video_slider",
+      "value": "Slider",
+      "label_en": "Slider",
+      "label_cn": "轮播"
+    },
+    {
+      "id": "mark_video_private",
+      "value": "Private",
+      "label_en": "Private",
+      "label_cn": "私密"
+    },
+    {
+      "id": "mark_video_feature",
+      "value": "Feature",
+      "label_en": "Feature",
+      "label_cn": "精选"
+    },
+    {
+      "id": "mark_video_none",
+      "value": "",
+      "label_en": "None",
+      "label_cn": "无"
+    }
+  ],
+  "event": [
+    {
+      "id": "mark_event_slider",
+      "value": "Slider",
+      "label_en": "Slider",
+      "label_cn": "轮播"
+    },
+    {
+      "id": "mark_event_private",
+      "value": "Private",
+      "label_en": "Private",
+      "label_cn": "私密"
+    },
+    {
+      "id": "mark_event_feature",
+      "value": "Feature",
+      "label_en": "Feature",
+      "label_cn": "精选"
+    },
+    {
+      "id": "mark_event_none",
+      "value": "",
+      "label_en": "None",
+      "label_cn": "无"
+    }
+  ],
+  "about": [
+    {
+      "id": "mark_about_slider",
+      "value": "Slider",
+      "label_en": "Slider",
+      "label_cn": "轮播"
+    },
+    {
+      "id": "mark_about_private",
+      "value": "Private",
+      "label_en": "Private",
+      "label_cn": "私密"
+    },
+    {
+      "id": "mark_about_feature",
+      "value": "Feature",
+      "label_en": "Feature",
+      "label_cn": "精选"
+    },
+    {
+      "id": "mark_about_none",
+      "value": "",
+      "label_en": "None",
+      "label_cn": "无"
+    }
+  ]
+}
