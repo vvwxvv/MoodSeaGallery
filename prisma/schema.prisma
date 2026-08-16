@@ -1,0 +1,260 @@
+generator client { 
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URL")
+  //provider = "postgresql"
+  //url      = env("DATABASE_URL")
+}
+
+model Users{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  username String
+  email String @unique
+  password String
+  createdAt DateTime @default(now())
+  lastLoginAt DateTime?
+}
+
+model Artwork {
+  id                            String   @id @default(auto()) @map("_id") @db.ObjectId
+  cover_img_url                 String?
+  related_gallery_exhibition   String[]
+  artist                       String?
+  title          String?
+  type           String?
+  medium         String?
+  year           String?
+  size           String?
+  series         String?
+  caption        String?
+  duration       String?
+  credits        String?
+  special_thanks String?
+  introduction   String[]
+  video_url      String?
+  web_url        String?
+  work_value     String?
+  sold           String?
+  order          String?
+  mark           String?
+  language       String?
+  updatedAt      DateTime @updatedAt
+}
+
+model Video {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  video_url  String?
+  tag_en     String?
+  tag_cn     String?
+  type       String?
+  caption_en String?
+  caption_cn String?
+  mark       String?
+  tag_source String?
+  order      String?
+  updatedAt  DateTime @updatedAt
+}
+
+model Web {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  web_url    String?
+  tag_en     String?
+  tag_cn     String?
+  type       String?
+  caption_en String?
+  caption_cn String?
+  mark       String?
+  tag_source String?
+  order      String?
+  updatedAt  DateTime @updatedAt
+}
+
+model Writing {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  cover_img_url String?
+  author        String?
+  title         String?
+  subtitle      String?
+  summary       String?
+  keywords      String?
+  category      String?
+  type          String?
+  year          String?
+  paragraphs    String[]
+  caption       String?
+  status        String?
+  mark          String?
+  tag           String?
+  language      String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+}
+
+
+model Event {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  cover_img_url         String?
+  title                 String?
+  subtitle              String?
+  year                  String?
+  date_time             String?
+  type                  String?
+  host                  String?
+  support               String?
+  special_thanks        String?
+  venue                 String?
+  address               String?
+  caption               String?
+  introduction          String[]
+  related_artist        String[]
+  web_url               String?
+  video_url             String?
+  mark                  String?
+  order                 String?
+  language              String?
+  updatedAt             DateTime @updatedAt
+}
+
+model Bibliography{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  related_gallery_exhibition   String[]
+  title String?
+  subtitle String?
+  cover_img_url String?
+  author String?
+  type String?
+  year String?
+  date String?
+  published_at String?
+  pdf_url String?
+  web_url String?
+  video_url String?
+  order String?
+  language              String?
+  mark                  String?
+  updatedAt DateTime @updatedAt
+}
+
+model Enquire {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  email           String
+  phone           String?
+  message         String?
+  related_gallery_artist   String?
+  related_artwork_title String?
+  createdAt       DateTime @default(now())
+  status          String?  @default("Pending") // e.g., Pending, Responded, Closed
+}
+
+model Image {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  img_url      String?
+  tag_en       String?
+  tag_cn       String?
+  type         String?
+  caption_en   String?
+  caption_cn   String?
+  mark         String?
+  tag_source   String?
+  order        String?
+}
+
+model Exhibition {
+  id                    String     @id @default(auto()) @map("_id") @db.ObjectId
+  title                 String?   
+  subtitle              String?    
+  type                  String? 
+  date_start            String?
+  date_end              String?
+  opening_date          String?
+  year                  String?
+  venue                 String?   
+  location              String?   
+  curator               String?
+  organiser             String?    
+  participating_artists String?   
+  caption               String?
+  description           String?
+  introduction          String[]   
+  press_release         String[]
+  related_artwork_title String[]
+  related_gallery_artist    String[]
+  cover_img_url         String?
+  web_url               String?
+  video_url             String?
+  language              String?
+  order                 String?
+  mark                  String?
+  status                String?   
+  updatedAt             DateTime   @updatedAt
+}
+
+
+model Fair {
+  id                    String     @id @default(auto()) @map("_id") @db.ObjectId
+  title                 String?  
+  section               String? 
+  type                  String? 
+  date_start            String?
+  date_end              String?
+  vip_preview_date          String?
+  year                  String?
+  booth                 String?
+  venue                 String?   
+  location              String?   
+  organiser             String?  
+  curator               String?  
+  participating_artists String?  
+  caption               String?
+  press_release         String[]
+  related_artwork_title String[]
+  related_gallery_artist    String[]
+  cover_img_url         String?
+  web_url               String?
+  video_url             String?
+  language              String?
+  order                 String?
+  mark                  String?
+  status                String?   
+  updatedAt             DateTime   @updatedAt
+}
+
+
+model About{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  artist String?
+  portrait_image_url String?
+  caption String?
+  introductions String[]
+  pdf_url String?
+  web_url String?
+  language String?
+  order String?
+  mark String?
+}
+
+model GalleryContact{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  galleryName String?      
+  openingTime String? 
+  email String?
+  phone String?
+  address String[]
+  socialMedia Json?
+  web_url String?
+  language String?
+}
+
+model Subscribe {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  email String @unique
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+}
+
+
