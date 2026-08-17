@@ -115,7 +115,7 @@ export const galleryContactApiConfig = {
             }
             return newItem;
           })
-          .filter(item => item.platform && item.account && item.url);
+          .filter(item => item.platform || item.account || item.url);
       } else {
         data.social_media = [];
       }
@@ -195,7 +195,7 @@ export const galleryContactApiConfig = {
             }
             return newItem;
           })
-          .filter(item => item.platform && item.account && item.url);
+          .filter(item => item.platform || item.account || item.url);
       } else {
         data.social_media = [];
       }
