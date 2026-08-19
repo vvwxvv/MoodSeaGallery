@@ -108,6 +108,33 @@ export function formatFairDate(dateStr, isCn = false) {
 }
 
 /**
+ * Get a sortable timestamp for a fair.
+ * Prefers date_start, falls back to date_end, then 0 (unknown dates sink to the bottom).
+ */
+function getFairTime(fair) {
+  const start = parseFairDate(fair?.date_start);
+  if (start) return start.getTime();
+
+  const end = parseFairDate(fair?.date_end);
+  if (end) return end.getTime();
+
+  return 0;
+}
+
+/**
+ * Sort an array of fairs by year/date.
+ * @param {Array} fairs
+ * @param {"desc"|"asc"} direction - "desc" (default) = newest first, "asc" = oldest first
+ * @returns {Array} a new sorted array (does not mutate the input)
+ */
+export function sortFairsByDate(fairs, direction = "desc") {
+  const sorted = [...(fairs || [])].sort(
+    (a, b) => getFairTime(b) - getFairTime(a)
+  );
+  return direction === "asc" ? sorted.reverse() : sorted;
+}
+
+/**
  * Build a date range string from start/end dates.
  */
 export function formatDateRange(fair, isCn = false) {
