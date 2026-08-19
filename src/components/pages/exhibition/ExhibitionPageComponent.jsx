@@ -52,20 +52,6 @@ const EXHIBITIONS_TEXT = {
 // ═════════════════════════════════════════════════════════════════════
 // 🎨 VISUAL CONFIGURATION — single source of truth for ALL visuals
 // ═════════════════════════════════════════════════════════════════════
-//
-// TYPOGRAPHY: every text element exposes the SAME complete set of
-// properties, so any element can be tuned identically:
-//
-//   fontSize       e.g. "22px"
-//   fontWeight     e.g. 500
-//   lineHeight     e.g. "34px"
-//   letterSpacing  e.g. "0.02em"
-//   color          "theme" → follows page theme text color,
-//                  or any explicit CSS color, e.g. "#4a4a4a"
-//   opacity        0–1 → applied on top of `color`. Setting a theme
-//                  color with opacity 0.6 yields a deep-grey look
-//                  that automatically adapts to light/dark themes.
-//
 const EXHIBITIONS_CONFIG = {
   TYPOGRAPHY: {
     SECTION_HEADING: {
@@ -86,8 +72,6 @@ const EXHIBITIONS_CONFIG = {
       opacity: 1,
     },
 
-    // Deep grey via theme color + reduced opacity (theme-adaptive).
-    // To force a fixed grey instead, use e.g. color: "#4a4a4a", opacity: 1.
     CARD_DATE: {
       fontSize: "15px",
       fontWeight: 500,
@@ -97,7 +81,6 @@ const EXHIBITIONS_CONFIG = {
       opacity: 0.6,
     },
 
-    // Exhibition type label (right edge of the caption row).
     CARD_TYPE: {
       fontSize: "14px",
       fontWeight: 500,
@@ -250,8 +233,6 @@ const resolveColor = (configColor, themeColor) =>
 
 /**
  * Build a complete inline style object from a TYPOGRAPHY config entry.
- * Guarantees every text element handles fontSize / fontWeight /
- * lineHeight / letterSpacing / color / opacity consistently.
  */
 const buildTextStyle = (typo, fontFamily, themeColor) => ({
   fontFamily,
@@ -266,6 +247,7 @@ const buildTextStyle = (typo, fontFamily, themeColor) => ({
 function getExhibitionYear(exhibition) {
   const raw =
     exhibition?.year ??
+    exhibition?.date_start ??
     exhibition?.start_date ??
     exhibition?.startDate ??
     exhibition?.date ??
@@ -320,9 +302,6 @@ function CustomYearDropdown({ isCn, textColor, bgColor, years, selectedYear, onS
     [fontFamily, textColor]
   );
 
-  // Measure the trigger so the panel can match its width when
-  // MENU_WIDTH === "match-trigger". Re-measures on open in case the
-  // trigger's own width changed (e.g. selected-year text length).
   useEffect(() => {
     if (isOpen && anchorRef.current) {
       setTriggerWidth(anchorRef.current.offsetWidth);
@@ -462,8 +441,6 @@ function ExhibitionCard({ exhibition, textColor, isCn, isHalfWidth = false }) {
 
   const { TYPOGRAPHY, CARD, ANIMATION } = EXHIBITIONS_CONFIG;
 
-  // All caption styles built from the unified TYPOGRAPHY config —
-  // color + opacity now fully configurable per element.
   const titleStyle = useMemo(
     () => buildTextStyle(TYPOGRAPHY.CARD_TITLE, captionFontFamily, textColor),
     [TYPOGRAPHY.CARD_TITLE, captionFontFamily, textColor]
@@ -620,7 +597,6 @@ function ExhibitionCard({ exhibition, textColor, isCn, isHalfWidth = false }) {
 // SKELETON
 // ═════════════════════════════════════════════════════════════════════
 function ExhibitionListSkeleton({ isMobile, bgColor }) {
-  const CARD_ASPECT = "3 / 2";
   return (
     <PageSkeleton bgColor={bgColor}>
       <div
@@ -699,6 +675,7 @@ export default function ExhibitionPage() {
     [TYPOGRAPHY.EMPTY_STATE, bodyFontFamily, textColor]
   );
 
+  // `current` and `past` both come back from the hook ordered by year/date (newest first)
   const { current, past, isLoading, hasError, refetch } = useExhibitionListData(isCn);
 
   const [selectedYear, setSelectedYear] = useState("");
@@ -714,9 +691,19 @@ export default function ExhibitionPage() {
     return Array.from(set).sort((a, b) => b.localeCompare(a));
   }, [allExhibitions]);
 
+  // allExhibitions is current (newest-first) followed by past (newest-first);
+  // re-sort the filtered result so a single selected year still reads newest → oldest
   const yearResults = useMemo(() => {
     if (!isFiltering) return [];
-    return allExhibitions.filter((ex) => getExhibitionYear(ex) === selectedYear);
+    return allExhibitions
+      .filter((ex) => getExhibitionYear(ex) === selectedYear)
+      .sort((a, b) => {
+        const getTime = (ex) => {
+          const d = new Date(ex?.date_start || ex?.date_end || 0);
+          return isNaN(d.getTime()) ? 0 : d.getTime();
+        };
+        return getTime(b) - getTime(a);
+      });
   }, [allExhibitions, selectedYear, isFiltering]);
 
   const pastSectionResults = isFiltering ? yearResults : past;
