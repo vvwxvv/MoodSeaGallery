@@ -49,8 +49,8 @@ const CONFIG = {
   LIST: {
     COLUMN_WIDTH: "46%",
     OFFSET_TOP: 50,
-    ITEM_GAP_DESKTOP: 23,
-    ITEM_GAP_MOBILE: 20,
+    ITEM_GAP_DESKTOP: 18,
+    ITEM_GAP_MOBILE: 15,
     ITEM_FONT_SIZE_DESKTOP: "17px",
     ITEM_FONT_SIZE_MOBILE: "15px",
     ITEM_FONT_WEIGHT: 347,
@@ -64,7 +64,7 @@ const CONFIG = {
 
   PREVIEW: {
     COLUMN_WIDTH: "54%",
-    MAX_WIDTH: 640,
+    MAX_WIDTH: 540,
     // Fallback aspect ratio (width / height) used only until the first
     // image finishes loading and reports its real dimensions.
     FALLBACK_ASPECT_RATIO: 0.8,
