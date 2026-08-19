@@ -231,7 +231,23 @@ const buildTextStyle = (typo, fontFamily, themeColor) => ({
 });
 
 function getFairYear(fair) {
-  return fair?.year || null;
+  const raw =
+    fair?.year ??
+    fair?.date_start ??
+    fair?.start_date ??
+    fair?.startDate ??
+    fair?.date ??
+    fair?.opening_date ??
+    fair?.begin_date;
+
+  if (!raw) return null;
+  if (typeof raw === "number") return String(raw);
+
+  const parsed = new Date(raw);
+  if (!isNaN(parsed.getTime())) return String(parsed.getFullYear());
+
+  const match = String(raw).match(/\d{4}/);
+  return match ? match[0] : null;
 }
 
 function getFairSlug(fair) {
@@ -660,9 +676,19 @@ export default function FairsPage() {
     return Array.from(set).sort((a, b) => b.localeCompare(a));
   }, [allFairs]);
 
+  // allFairs is current (newest-first) followed by past (newest-first);
+  // re-sort the filtered result so a single selected year still reads newest → oldest
   const yearResults = useMemo(() => {
     if (!isFiltering) return [];
-    return allFairs.filter((fair) => getFairYear(fair) === selectedYear);
+    return allFairs
+      .filter((fair) => getFairYear(fair) === selectedYear)
+      .sort((a, b) => {
+        const getTime = (fair) => {
+          const d = new Date(fair?.date_start || fair?.date_end || 0);
+          return isNaN(d.getTime()) ? 0 : d.getTime();
+        };
+        return getTime(b) - getTime(a);
+      });
   }, [allFairs, selectedYear, isFiltering]);
 
   const pastSectionResults = isFiltering ? yearResults : past;
