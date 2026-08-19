@@ -38,6 +38,15 @@ export const TYPE_SCALE = {
   // transform for the nav all live in NAV_CONFIG inside
   // components/nav/MainNav.js — edit there, not here.
   navLink: {
+    zh: { weight: 'regular' },
+    en: { weight: 'regular' },
+  },
+  // MANAGER NAV LINK — same weight-only split as navLink above, used by
+  // useFont("managerNavLink") in components/nav/ManagerNav.js for the
+  // desktop/mobile menu labels, dropdown items, and Contact button.
+  // Sizing/spacing for those elements is set inline in ManagerNav.js
+  // (MenuLabel, DropdownItem, etc.) — edit there, not here.
+  managerNavLink: {
     zh: { weight: 'medium' },
     en: { weight: 'regular' },
   },
