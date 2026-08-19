@@ -108,6 +108,33 @@ export function formatExhibitionDate(dateStr, isCn = false) {
 }
 
 /**
+ * Get a sortable timestamp for an exhibition.
+ * Prefers date_start, falls back to date_end, then 0 (unknown dates sink to the bottom).
+ */
+function getExhibitionTime(exhibition) {
+  const start = parseExhibitionDate(exhibition?.date_start);
+  if (start) return start.getTime();
+
+  const end = parseExhibitionDate(exhibition?.date_end);
+  if (end) return end.getTime();
+
+  return 0;
+}
+
+/**
+ * Sort an array of exhibitions by year/date.
+ * @param {Array} exhibitions
+ * @param {"desc"|"asc"} direction - "desc" (default) = newest first, "asc" = oldest first
+ * @returns {Array} a new sorted array (does not mutate the input)
+ */
+export function sortExhibitionsByDate(exhibitions, direction = "desc") {
+  const sorted = [...(exhibitions || [])].sort(
+    (a, b) => getExhibitionTime(b) - getExhibitionTime(a)
+  );
+  return direction === "asc" ? sorted.reverse() : sorted;
+}
+
+/**
  * Build a date range string from start/end dates.
  */
 export function formatDateRange(exhibition, isCn = false) {
