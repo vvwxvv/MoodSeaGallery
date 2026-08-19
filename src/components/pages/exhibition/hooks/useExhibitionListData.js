@@ -3,7 +3,10 @@
 import { useMemo, useCallback, useState } from "react";
 import useData from "@/hooks/useData";
 import { filterByLanguage } from "@/utils/filterByLanguage";
-import { classifyExhibitions } from "@/components/pages/exhibition/utils/exhibitionDates";
+import {
+  classifyExhibitions,
+  sortExhibitionsByDate,
+} from "@/components/pages/exhibition/utils/exhibitionDates";
 
 /**
  * useExhibitionListData
@@ -12,9 +15,9 @@ import { classifyExhibitions } from "@/components/pages/exhibition/utils/exhibit
  * into current / past, filtered by language.
  *
  * Returns:
- *   exhibitions    – all language-filtered exhibitions (sorted by order)
- *   current        – currently active exhibitions
- *   past           – past exhibitions
+ *   exhibitions    – all language-filtered exhibitions, ordered by year/date (newest first)
+ *   current        – currently active exhibitions, ordered by year/date (newest first)
+ *   past           – past exhibitions, ordered by year/date (newest first)
  *   activeTab      – "current" | "past"
  *   setActiveTab   – tab setter
  *   isLoading      – boolean
@@ -37,17 +40,18 @@ export default function useExhibitionListData(isCn) {
     [rawData, isCn]
   );
 
-  // 2. Classify into current/past (sorted by order)
-  const { current, past } = useMemo(
+  // 2. Classify into current/past
+  const { current: currentByOrder, past: pastByOrder } = useMemo(
     () => classifyExhibitions(filtered),
     [filtered]
   );
 
-  // 3. All exhibitions sorted by order
-  const exhibitions = useMemo(
-    () => [...filtered].sort((a, b) => (Number(a?.order) || 0) - (Number(b?.order) || 0)),
-    [filtered]
-  );
+  // Both lists re-sorted by year/date (newest first) instead of the `order` field
+  const current = useMemo(() => sortExhibitionsByDate(currentByOrder, "desc"), [currentByOrder]);
+  const past = useMemo(() => sortExhibitionsByDate(pastByOrder, "desc"), [pastByOrder]);
+
+  // 3. All exhibitions, ordered by year/date — newest first
+  const exhibitions = useMemo(() => sortExhibitionsByDate(filtered, "desc"), [filtered]);
 
   const handleRetry = useCallback(() => {
     refetch?.();
