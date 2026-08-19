@@ -3,7 +3,10 @@
 import { useMemo, useCallback, useState } from "react";
 import useData from "@/hooks/useData";
 import { filterByLanguage } from "@/utils/filterByLanguage";
-import { classifyFairs } from "@/components/pages/fair/utils/fairDates";
+import {
+  classifyFairs,
+  sortFairsByDate,
+} from "@/components/pages/fair/utils/fairDates";
 
 /**
  * useFairListData
@@ -12,9 +15,9 @@ import { classifyFairs } from "@/components/pages/fair/utils/fairDates";
  * into current / past, filtered by language.
  *
  * Returns:
- *   fairs         – all language-filtered fairs (sorted by order)
- *   current       – currently active fairs
- *   past          – past fairs
+ *   fairs         – all language-filtered fairs, ordered by year/date (newest first)
+ *   current       – currently active fairs, ordered by year/date (newest first)
+ *   past          – past fairs, ordered by year/date (newest first)
  *   activeTab     – "current" | "past"
  *   setActiveTab  – tab setter
  *   isLoading     – boolean
@@ -37,17 +40,18 @@ export default function useFairListData(isCn) {
     [rawData, isCn]
   );
 
-  // 2. Classify into current/past (sorted by order)
-  const { current, past } = useMemo(
+  // 2. Classify into current/past
+  const { current: currentByOrder, past: pastByOrder } = useMemo(
     () => classifyFairs(filtered),
     [filtered]
   );
 
-  // 3. All fairs sorted by order
-  const fairs = useMemo(
-    () => [...filtered].sort((a, b) => (Number(a?.order) || 0) - (Number(b?.order) || 0)),
-    [filtered]
-  );
+  // Both lists re-sorted by year/date (newest first) instead of the `order` field
+  const current = useMemo(() => sortFairsByDate(currentByOrder, "desc"), [currentByOrder]);
+  const past = useMemo(() => sortFairsByDate(pastByOrder, "desc"), [pastByOrder]);
+
+  // 3. All fairs, ordered by year/date — newest first
+  const fairs = useMemo(() => sortFairsByDate(filtered, "desc"), [filtered]);
 
   const handleRetry = useCallback(() => {
     refetch?.();
