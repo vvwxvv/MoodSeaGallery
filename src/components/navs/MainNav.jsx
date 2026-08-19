@@ -17,16 +17,31 @@ import { useReverseTheme } from "@/hooks/useReverseTheme";
 import menuItems from "@/data/menuItems.json";
 import useFont from "@/hooks/useFont";
 import MenuIconButton from "@/components/buttons/MenuIconButton";
-import { useAsyncAction } from "@/hooks/useAsyncAction"; // 新增导入
+import { useAsyncAction } from "@/hooks/useAsyncAction";
 
-// ============================================================================
-// 🎨 NAVIGATION DESIGN CONFIGURATION
-// (保持不变)
-// ============================================================================
+// ═════════════════════════════════════════════════════════════════════
+// 🎨 NAVIGATION CONFIGURATION — single source of truth for ALL visuals
+// ═════════════════════════════════════════════════════════════════════
+//
+// Everything the nav renders — font, spacing, color, timing, shadows —
+// is set here. Nothing visual should be hardcoded further down; if you
+// need to tweak how the nav looks, this is the only block to touch.
+//
+// FONT FAMILY specifically: this component doesn't hardcode a font file.
+// It reads `FONT.ROLE` below and hands it to useFont(), which looks the
+// role up in lib/typography.js to pick the actual font FILE per language
+// (see FONT_FACES / TYPE_SCALE there). To change which typography role
+// this nav uses, edit FONT.ROLE. To change what font FILE that role
+// resolves to, edit lib/typography.js — not this file.
+//
 const NAV_CONFIG = {
-  FONT_SIZE: "18px",
-  LETTER_SPACING: "0.04em",
+  // ── Font ─────────────────────────────────────────────────────────
+  FONT: {
+    ROLE: "navLink", // must match a key in TYPE_SCALE (lib/typography.js)
+    FALLBACK_FAMILY: "sans-serif", // used only if the role/hook ever fails to resolve
+  },
 
+  // ── Top bar ──────────────────────────────────────────────────────
   BAR: {
     HEIGHT: 70,
     PADDING_HORIZONTAL_DESKTOP: 50,
@@ -34,10 +49,14 @@ const NAV_CONFIG = {
     Z_INDEX: 1300,
     SHOW_BORDER: false,
     BORDER_WIDTH: "1px",
-    BORDER_COLOR: null,
+    BORDER_COLOR: null, // null → falls back to theme border color
+    BACKGROUND_TRANSITION: "background-color 0.3s ease, border-color 0.3s ease",
   },
 
+  // ── Logo ─────────────────────────────────────────────────────────
   LOGO: {
+    SRC: "/moodsea_gallery_logo.png",
+    ALT: "MOODSEA GALLERY",
     WIDTH_DESKTOP: "300px",
     WIDTH_MOBILE: "200px",
     HEIGHT_DESKTOP: "65px",
@@ -48,24 +67,27 @@ const NAV_CONFIG = {
     TOP_MOBILE: "0px",
   },
 
+  // ── Desktop nav links ────────────────────────────────────────────
   LINK: {
     FONT_SIZE: "18px",
     FONT_WEIGHT: 500,
     LINE_HEIGHT: "16px",
+    LETTER_SPACING: "0.04em",
     TEXT_TRANSFORM: "none",
     GAP: "clamp(16px, 2.5vw, 32px)",
-    COLOR: null,
-    COLOR_ACTIVE: null,
+    COLOR: null, // null → falls back to theme text color
+    COLOR_ACTIVE: null, // null → falls back to COLOR
     OPACITY_DEFAULT: 0.7,
     OPACITY_ACTIVE: 1,
+    HOVER_TRANSITION: "opacity 0.2s ease, color 0.2s ease",
 
     UNDERLINE: {
       ENABLED: true,
       SHOW_ON_ACTIVE: true,
       HEIGHT: "1px",
-      COLOR: null,
+      COLOR: null, // null → falls back to LINK.COLOR_ACTIVE
       MARGIN_TOP: "7px",
-      ANIM_TYPE: "tween",
+      ANIM_TYPE: "tween", // "tween" | "spring"
       ANIM_DURATION: 0.2,
       ANIM_EASING: "easeInOut",
       SPRING_STIFFNESS: 300,
@@ -73,22 +95,35 @@ const NAV_CONFIG = {
     },
   },
 
+  // ── Mobile drawer ────────────────────────────────────────────────
   DRAWER: {
     WIDTH: "280px",
+    MAX_WIDTH: "85vw",
     Z_INDEX: 1500,
+    PADDING: "64px 24px 24px",
+    CONTENT_GAP: "4px",
+    BOX_SHADOW: "2px 0 12px rgba(0,0,0,0.15)",
+    ANIM_DURATION: 0.25,
+    ANIM_EASING: "tween",
+
+    BACKDROP_COLOR: "rgba(0,0,0,0.5)",
+    BACKDROP_Z_OFFSET: 100, // backdrop z-index = DRAWER.Z_INDEX - this
+    BACKDROP_FADE_DURATION: 0.2,
+
     LINK_FONT_SIZE: "24px",
     LINK_FONT_WEIGHT: 600,
     LINK_LETTER_SPACING: "0.02em",
     LINK_LINE_HEIGHT: "1.4",
     LINK_TEXT_TRANSFORM: "none",
-    LINK_COLOR: null,
+    LINK_COLOR: null, // null → falls back to theme text color
+    LINK_PADDING: "14px 0",
     SHOW_ITEM_DIVIDER: true,
-    DIVIDER_COLOR: null,
+    DIVIDER_COLOR: null, // null → falls back to theme border color
   },
 };
 
 // ----------------------------------------------------------------------------
-// Pure helpers
+// Pure helpers — read from NAV_CONFIG, never hardcode a visual value here
 // ----------------------------------------------------------------------------
 
 function buildUnderlineTransition(cfg) {
@@ -111,7 +146,7 @@ function buildBaseLinkStyle(navFontFamily) {
     border: "none",
     cursor: "pointer",
     padding: 0,
-    transition: "opacity 0.2s ease, color 0.2s ease",
+    transition: NAV_CONFIG.LINK.HOVER_TRANSITION,
   };
 }
 
@@ -125,7 +160,7 @@ function buildDesktopLinkStyle({ baseLinkStyle, isActiveOrHovered, linkColor, li
     fontSize: NAV_CONFIG.LINK.FONT_SIZE,
     fontWeight: NAV_CONFIG.LINK.FONT_WEIGHT,
     lineHeight: NAV_CONFIG.LINK.LINE_HEIGHT,
-    letterSpacing: NAV_CONFIG.LETTER_SPACING,
+    letterSpacing: NAV_CONFIG.LINK.LETTER_SPACING,
     textTransform: NAV_CONFIG.LINK.TEXT_TRANSFORM,
   };
 }
@@ -140,7 +175,7 @@ function buildDrawerLinkStyle({ baseLinkStyle, drawerLinkColor, drawerDividerCol
     lineHeight: NAV_CONFIG.DRAWER.LINK_LINE_HEIGHT,
     letterSpacing: NAV_CONFIG.DRAWER.LINK_LETTER_SPACING,
     textTransform: NAV_CONFIG.DRAWER.LINK_TEXT_TRANSFORM,
-    padding: "14px 0",
+    padding: NAV_CONFIG.DRAWER.LINK_PADDING,
     borderBottom: NAV_CONFIG.DRAWER.SHOW_ITEM_DIVIDER
       ? `1px solid ${drawerDividerColor}`
       : "none",
@@ -166,8 +201,8 @@ const Logo = memo(function Logo({ isMobile }) {
       }}
     >
       <img
-        src="/moodsea_gallery_logo.png"
-        alt="MOODSEA GALLERY"
+        src={NAV_CONFIG.LOGO.SRC}
+        alt={NAV_CONFIG.LOGO.ALT}
         style={{
           width: isMobile ? NAV_CONFIG.LOGO.WIDTH_MOBILE : NAV_CONFIG.LOGO.WIDTH_DESKTOP,
           maxHeight: isMobile ? NAV_CONFIG.LOGO.HEIGHT_MOBILE : NAV_CONFIG.LOGO.HEIGHT_DESKTOP,
@@ -190,7 +225,7 @@ const DesktopNavLink = memo(function DesktopNavLink({
   linkColorActive,
   underlineColor,
   underlineTransition,
-  onLinkClick, // 新增：点击处理函数
+  onLinkClick,
 }) {
   const showUnderline =
     NAV_CONFIG.LINK.UNDERLINE.ENABLED &&
@@ -245,7 +280,7 @@ function DesktopNav({
   linkColorActive,
   underlineColor,
   underlineTransition,
-  onLinkClick, // 新增
+  onLinkClick,
 }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: NAV_CONFIG.LINK.GAP }}>
@@ -278,6 +313,12 @@ const DrawerLink = memo(function DrawerLink({ item, onClick, linkStyle }) {
 });
 
 function MobileDrawer({ menuList, isOpen, onClose, colors, drawerLinkStyle, onLinkClick }) {
+  const { DRAWER } = NAV_CONFIG;
+  const panelTransition = useMemo(
+    () => ({ type: DRAWER.ANIM_EASING, duration: DRAWER.ANIM_DURATION }),
+    [DRAWER.ANIM_EASING, DRAWER.ANIM_DURATION]
+  );
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -287,12 +328,13 @@ function MobileDrawer({ menuList, isOpen, onClose, colors, drawerLinkStyle, onLi
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: DRAWER.BACKDROP_FADE_DURATION }}
             onClick={onClose}
             style={{
               position: "fixed",
               inset: 0,
-              zIndex: NAV_CONFIG.DRAWER.Z_INDEX - 100,
-              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: DRAWER.Z_INDEX - DRAWER.BACKDROP_Z_OFFSET,
+              backgroundColor: DRAWER.BACKDROP_COLOR,
             }}
           />
 
@@ -301,21 +343,21 @@ function MobileDrawer({ menuList, isOpen, onClose, colors, drawerLinkStyle, onLi
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
-            transition={{ type: "tween", duration: 0.25 }}
+            transition={panelTransition}
             style={{
               position: "fixed",
               top: 0,
               left: 0,
               bottom: 0,
-              width: NAV_CONFIG.DRAWER.WIDTH,
-              maxWidth: "85vw",
-              zIndex: NAV_CONFIG.DRAWER.Z_INDEX,
+              width: DRAWER.WIDTH,
+              maxWidth: DRAWER.MAX_WIDTH,
+              zIndex: DRAWER.Z_INDEX,
               backgroundColor: colors.background,
-              padding: "64px 24px 24px",
+              padding: DRAWER.PADDING,
               display: "flex",
               flexDirection: "column",
-              gap: "4px",
-              boxShadow: "2px 0 12px rgba(0,0,0,0.15)",
+              gap: DRAWER.CONTENT_GAP,
+              boxShadow: DRAWER.BOX_SHADOW,
             }}
           >
             {menuList.map((item) => (
@@ -323,8 +365,8 @@ function MobileDrawer({ menuList, isOpen, onClose, colors, drawerLinkStyle, onLi
                 key={item.href}
                 item={item}
                 onClick={() => {
-                  onClose();      // 关闭抽屉
-                  onLinkClick();  // 执行点击增强逻辑
+                  onClose();
+                  onLinkClick();
                 }}
                 linkStyle={drawerLinkStyle}
               />
@@ -345,18 +387,18 @@ export default function MainNav() {
   const { isMobile, isTablet } = useContext(DeviceContext);
   const { isManager } = useContext(ManagerContext);
   const { colors } = useReverseTheme();
-  const { fontFamily: navFontFamily } = useFont("navLink");
+  const { fontFamily: resolvedFontFamily } = useFont(NAV_CONFIG.FONT.ROLE);
+  const navFontFamily = resolvedFontFamily || NAV_CONFIG.FONT.FALLBACK_FAMILY;
   const pathname = usePathname();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [hoveredHref, setHoveredHref] = useState(null);
 
-  // 集成 useAsyncAction，设置 throttleMs = 0 实现无延迟点击响应
+  // Fires on every link click; kept lightweight (throttleMs: 0) since the
+  // page may navigate away immediately after. Wire up analytics/prefetch
+  // logic inside this function.
   const { execute: onLinkClick } = useAsyncAction(
     async () => {
-      // 在这里放置您希望在点击链接时执行的异步逻辑（例如埋点、预加载等）
-      // 当前为空函数，仅用于演示；您可以根据需要替换。
-      // 注意：由于页面可能很快跳转，此处的异步操作应轻量或使用 sendBeacon 等方式。
       console.log("Link clicked – async action triggered");
     },
     { throttleMs: 0, onSuccess: () => {}, onError: (err) => console.error(err) }
@@ -413,7 +455,7 @@ export default function MainNav() {
             NAV_CONFIG.BAR.SHOW_BORDER && !isHome
               ? `${NAV_CONFIG.BAR.BORDER_WIDTH} solid ${barBorderColor}`
               : "none",
-          transition: "background-color 0.3s ease, border-color 0.3s ease",
+          transition: NAV_CONFIG.BAR.BACKGROUND_TRANSITION,
         }}
       >
         <Logo isMobile={isMobile} />
