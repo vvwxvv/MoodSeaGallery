@@ -24,7 +24,7 @@ import AppSnackbar from "@/components/ui/Snackbar";
 import AlertInfo from "@/components/alerts/AlertInfo";
 import BatchDialog from "@/components/popups/BatchDialog";
 import BatchEditDialog from "@/components/popups/BatchEditDialog";
-import LoadingAnimation from "@/components/animations/LoadingAnimation";
+import LoadingLayer from "@/components/animations/LoadingLayer";
 import { useDarkMode } from "@/hooks/useDarkMode";
 import InfoBar from "@/components/alerts/InfoBar";
 import ImageThumbnailWithPreview from "@/components/images/ImageThumbnailWithPreview";
@@ -801,7 +801,7 @@ export default function BatchEditManagerShell({ config }) {
   // ============================================================================
 
   if (api.isLoading) {
-    return <LoadingAnimation isLoading={api.isLoading} />;
+    return <LoadingLayer isLoading={api.isLoading} />;
   }
 
   if (api.error && dataState.data.length === 0) {
