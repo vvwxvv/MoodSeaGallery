@@ -3,43 +3,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Box } from "@mui/material";
 import { motion } from "framer-motion";
-import {
-  BookFilled,
-  FacebookFilled,
-  GlobalOutlined,
-  InstagramFilled,
-  XOutlined,
-  TwitterOutlined,
-  LinkedinFilled,
-  YoutubeFilled,
-  WechatFilled,
-  WeiboCircleFilled,
-  WhatsAppOutlined,
-  GithubFilled,
-  TikTokFilled,
-  PinterestFilled,
-  DribbbleSquareFilled,
-  BehanceSquareFilled,
-  MediumWorkmarkOutlined,
-  SkypeFilled,
-  SlackSquareFilled,
-  DiscordFilled,
-  GoogleOutlined,
-  QqOutlined,
-  AlipayCircleFilled,
-  TaobaoCircleFilled,
-  ZhihuCircleFilled,
-  RedditOutlined,
-  SpotifyFilled,
-  TwitchFilled,
-  BilibiliFilled,
-  SoundOutlined,
-} from "@ant-design/icons";
 
 import useAboutData from "@/components/pages/about/hooks/useAboutData";
 import useGalleryContactData from "@/components/pages/about/hooks/useGalleryContactData";
 import PageSkeleton, { SkeletonBlock, SkeletonLine } from "@/components/skeletons/PageSkeleton";
 import AlertInfo from "@/components/alerts/AlertInfo";
+import { renderArrayContent } from "@/utils/textFormatting";
 import useFont from "@/hooks/useFont";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -94,61 +63,6 @@ const CONTENT_MX = ALIGN_MX[LAYOUT.CONTENT_ALIGN] || ALIGN_MX.center;
 const SOCIAL = Object.freeze({
   TOP_GAP: "22px",
 });
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SOCIAL ICON MAP  (platform value → Ant Design icon component)
-//   Keys are normalized platform strings; matching is case-insensitive and
-//   ignores punctuation/spaces, so "Instagram", "instagram", "instagram.com"
-//   and "IG" all resolve to the same icon.
-// ─────────────────────────────────────────────────────────────────────────────
-const SOCIAL_ICON_MAP = {
-  facebook: FacebookFilled,
-  instagram: InstagramFilled,
-  ig: InstagramFilled,
-  twitter: TwitterOutlined,
-  x: XOutlined,
-  linkedin: LinkedinFilled,
-  youtube: YoutubeFilled,
-  wechat: WechatFilled,
-  weixin: WechatFilled,
-  weibo: WeiboCircleFilled,
-  whatsapp: WhatsAppOutlined,
-  github: GithubFilled,
-  tiktok: TikTokFilled,
-  douyin: TikTokFilled,
-  pinterest: PinterestFilled,
-  dribbble: DribbbleSquareFilled,
-  behance: BehanceSquareFilled,
-  medium: MediumWorkmarkOutlined,
-  skype: SkypeFilled,
-  slack: SlackSquareFilled,
-  discord: DiscordFilled,
-  google: GoogleOutlined,
-  qq: QqOutlined,
-  alipay: AlipayCircleFilled,
-  taobao: TaobaoCircleFilled,
-  zhihu: ZhihuCircleFilled,
-  red: BookFilled,
-  xiaohongshu: BookFilled,
-  xhs: BookFilled,
-  reddit: RedditOutlined,
-  spotify: SpotifyFilled,
-  twitch: TwitchFilled,
-  bilibili: BilibiliFilled,
-  soundcloud: SoundOutlined,
-  other: GlobalOutlined,
-};
-
-// Normalize a platform string and resolve it to an icon component (or null).
-const getSocialIcon = (platform) => {
-  if (!platform) return null;
-  const key = String(platform).toLowerCase().replace(/[^a-z0-9]/g, "");
-  if (!key) return null;
-  if (SOCIAL_ICON_MAP[key]) return SOCIAL_ICON_MAP[key];
-  // Fall back to partial matching (e.g. "youtube.com" → youtube, "weibo_official" → weibo)
-  const match = Object.keys(SOCIAL_ICON_MAP).find((k) => key.includes(k) || k.includes(key));
-  return match ? SOCIAL_ICON_MAP[match] : null;
-};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // IMAGE CONFIG  (tune here)
@@ -543,27 +457,18 @@ const AboutPageComponent = () => {
           {/* ── Social media ── */}
           {contactInfo.socialMedia.length > 0 && (
             <div style={{ marginTop: SOCIAL.TOP_GAP }}>
-              {contactInfo.socialMedia.map((s, i) => {
-                const SocialIcon = getSocialIcon(s.platform);
-                return (
-                  <div
-                    key={`${s.platform || "social"}-${i}`}
-                    style={{ ...contactLineStyle, alignItems: "center" }}
-                  >
-                    {SocialIcon && (
-                      <SocialIcon style={{ fontSize: 16, flexShrink: 0 }} aria-hidden="true" />
-                    )}
-                    {s.platform && <span style={labelStyle}>{s.platform}:</span>}
-                    {s.url ? (
-                      <a href={s.url} target="_blank" rel="noopener noreferrer" style={linkStyle}>
-                        {s.account || s.url}
-                      </a>
-                    ) : (
-                      <span>{s.account}</span>
-                    )}
-                  </div>
-                );
-              })}
+              {contactInfo.socialMedia.map((s, i) => (
+                <div key={`${s.platform || "social"}-${i}`} style={contactLineStyle}>
+                  {s.platform && <span style={labelStyle}>{s.platform}:</span>}
+                  {s.url ? (
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" style={linkStyle}>
+                      {s.account || s.url}
+                    </a>
+                  ) : (
+                    <span>{s.account}</span>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </>
