@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import LoadingAnimation from "@/components/animations/LoadingAnimation";
+import LoadingLayer from "@/components/animations/LoadingLayer";
 
 // ── Shared shimmer keyframes (injected once) ──
 const KEYFRAMES = `
@@ -99,7 +99,7 @@ export default function PageSkeleton({
   return (
     <div style={{ backgroundColor: bgColor, minHeight: "100vh" }}>
       <LoadingBar />
-      <LoadingAnimation isLoading />
+      <LoadingLayer isLoading />
       {children}
     </div>
   );
@@ -114,7 +114,7 @@ export function GridListSkeleton({ columns = 3, rows = 2, cardAspect = "75%", he
   return (
     <div style={{ backgroundColor: bgColor, minHeight: "100vh", padding: "40px 50px 120px" }}>
       <LoadingBar />
-      <LoadingAnimation isLoading />
+      <LoadingLayer isLoading />
       <SkeletonLine width={`${headingWidth}px`} height={30} style={{ marginBottom: "40px" }} />
       <div
         style={{
@@ -143,7 +143,7 @@ export function DetailPageSkeleton({ bgColor = "#fff", showImage = true, paragra
   return (
     <div style={{ backgroundColor: bgColor, minHeight: "100vh", padding: "40px 50px 120px" }}>
       <LoadingBar />
-      <LoadingAnimation isLoading />
+      <LoadingLayer isLoading />
       {showImage && (
         <>
           <SkeletonBlock height={400} style={{ marginBottom: "32px" }} />
@@ -170,7 +170,7 @@ export function SimplePageSkeleton({ bgColor = "#fff", paragraphs = 3 }) {
   return (
     <div style={{ backgroundColor: bgColor, minHeight: "100vh", padding: "40px 50px 120px" }}>
       <LoadingBar />
-      <LoadingAnimation isLoading />
+      <LoadingLayer isLoading />
       <SkeletonLine width="180px" height={30} style={{ marginBottom: "32px" }} />
       <div style={{ display: "flex", flexDirection: "column", gap: "18px", maxWidth: "680px" }}>
         {Array.from({ length: paragraphs }).map((_, i) => (
