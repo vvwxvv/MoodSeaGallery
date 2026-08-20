@@ -1,0 +1,83 @@
+"use client";
+
+import { useState, useEffect } from "react";
+
+// ✅ same improved slug generator
+const generateSlug = (text) => {
+  if (!text) return "";
+  return text
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/[^\p{L}\p{N}_-]/gu, "");
+};
+
+export default function useFairSlugData(slugParam, isCn) {
+  const [fair, setFair] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // handle string | string[]
+    const rawSlug = Array.isArray(slugParam) ? slugParam[0] : slugParam;
+    const slug = rawSlug ? decodeURIComponent(rawSlug) : "";
+
+    if (!slug) {
+      setLoading(false);
+      setError("No slug provided");
+      return;
+    }
+
+    const fetchFair = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch("/api/fair", { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const result = await response.json();
+        const list = Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : [];
+
+        // optional language filter (only if fair.language exists)
+        const targetLang = isCn ? "CN" : "EN";
+
+        const found = list.find((item) => {
+          if (!item) return false;
+
+          const lang = (item.language || "").toUpperCase();
+          if (lang && lang !== targetLang) return false;
+
+          // ✅ match by id
+          if (item._id === slug || item.id === slug) return true;
+
+          // ✅ match by stored slug (if you have one)
+          if (item.slug && item.slug === slug) return true;
+
+          // ✅ match by generated title slug
+          const titleSlug = generateSlug(item.title);
+          if (titleSlug && titleSlug === slug) return true;
+
+          return false;
+        });
+
+        if (found) {
+          setFair(found);
+        } else {
+          setFair(null);
+          setError("Fair not found");
+        }
+      } catch (err) {
+        setFair(null);
+        setError(err?.message || "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFair();
+  }, [slugParam, isCn]);
+
+  return { fair, loading, error };
+}
