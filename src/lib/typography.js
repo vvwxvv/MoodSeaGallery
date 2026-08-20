@@ -7,7 +7,17 @@ export const FONT_FACES = {
     thin: 'PingFangThin',
     light: 'PingFangLight',
     regular: 'PingFangRegular',
-    medium: 'PingFangMedium', // ⚠️ not declared in your @font-face list yet
+    // ⚠️ PingFangMedium has no @font-face rule declared anywhere in the
+    // site's CSS yet. Pointing this key at that name doesn't error — the
+    // string resolves fine in JS — but the browser can't find a font by
+    // that name and silently falls back to the system default. That's
+    // why every role requesting zh "medium" (artistName, artistWorksHeading,
+    // managerNavLink) was rendering in the wrong typeface with no warning.
+    // Aliasing to PingFangRegular for now means those roles render the
+    // correct BRANDED font instead of an invisible system fallback.
+    // TODO: once PingFangMedium is added via @font-face, change this one
+    // line back — every role using FONT_FACES.zh.medium updates automatically.
+    medium: 'PingFangRegular',
   },
   en: {
     regular: 'AvenirNextRegular',
@@ -136,6 +146,51 @@ export const TYPE_SCALE = {
   artistWorksHeading: {                 // "作品" / "Works" sub-heading on the artist detail page
     zh: { weight: 'medium' },
     en: { weight: 'medium' },
+  },
+
+  // ── Exhibition & Fair detail pages ──────────────────────────────────────
+  // Shared weight-only roles (→ font FILE via FONT_FACES[lang][weight]) used
+  // by BOTH the exhibition-detail and fair-detail pages, which share an
+  // identical layout. Size, line-height, letter-spacing, colour, opacity and
+  // CSS font-weight for every element live in TEXT_CONFIG / LAYOUT_CONFIG at
+  // the top of ExhibitionDetailPageComponent.jsx and
+  // FairDetailPageComponent.jsx — edit those, not here. Change only `weight`
+  // here to swap the typeface FILE for a role across both pages at once.
+  detailTitle: {                        // Exhibition / fair title heading (e.g. *I Am Here*)
+    zh: { weight: 'medium' },
+    en: { weight: 'medium' },
+  },
+  detailSubtitle: {                     // Exhibition subtitle / fair "section" line
+    zh: { weight: 'regular' },
+    en: { weight: 'regular' },
+  },
+  detailDate: {                         // Date-range line
+    zh: { weight: 'medium' },
+    en: { weight: 'medium' },
+  },
+  detailCaption: {                      // Cover caption + body-image captions (italic)
+    zh: { weight: 'regular' },
+    en: { weight: 'regular' },
+  },
+  detailBody: {                         // Introduction / description / press-release paragraphs
+    zh: { weight: 'regular' },
+    en: { weight: 'regular' },
+  },
+  detailSectionHeading: {               // "Works" / "Related Artists" sub-headings
+    zh: { weight: 'medium' },
+    en: { weight: 'medium' },
+  },
+  detailLink: {                         // Works + related-artist text links
+    zh: { weight: 'regular' },
+    en: { weight: 'regular' },
+  },
+  detailMetaLabel: {                    // Metadata table — uppercase label column
+    zh: { weight: 'medium' },
+    en: { weight: 'medium' },
+  },
+  detailMetaValue: {                    // Metadata table — value column
+    zh: { weight: 'regular' },
+    en: { weight: 'regular' },
   },
 
   // ── Generic / fallback ──────────────────────────────────────────────────
