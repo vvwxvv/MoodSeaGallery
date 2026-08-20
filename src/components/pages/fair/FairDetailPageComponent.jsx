@@ -27,8 +27,13 @@ import ImageZoomModal from "@/components/images/ImageZoomModal";
 // 🅰️  TEXT / TYPOGRAPHY CONFIG  — tune every piece of text here
 // ------------------------------------------------------------
 // Each block controls one text element on the page:
+//   role                              → which entry in lib/typography.js
+//                                        supplies the branded font FILE
+//                                        (via useFont(role)). Change the
+//                                        TYPEFACE for a role there; change
+//                                        its SIZE/weight/colour/gap here.
 //   fontSizeDesktop / fontSizeMobile  → responsive size
-//   fontWeight                        → 300–700
+//   fontWeight                        → 300–700 (CSS weight)
 //   color                             → null = follow the theme (colors.text,
 //                                        auto light/dark). Put a hex to override.
 //   opacity                           → 0–1
@@ -36,12 +41,15 @@ import ImageZoomModal from "@/components/images/ImageZoomModal";
 //   marginBottom (px)                 → the GAP under this element
 //   italic / textAlign / textTransform→ optional extras
 //
-// BASE_COLOR recolours EVERY element at once (still overridable per block).
+// Roles are SHARED with the exhibition detail page — swapping a typeface in
+// lib/typography.js updates both pages at once. BASE_COLOR recolours EVERY
+// element here (still overridable per block).
 // ============================================================
 const TEXT_CONFIG = {
   BASE_COLOR: null, // e.g. "#111111" to force one colour on all text
 
   TITLE: {
+    role: "detailTitle",
     fontSizeDesktop: "26px",
     fontSizeMobile: "22px",
     fontWeight: 500,
@@ -54,6 +62,7 @@ const TEXT_CONFIG = {
   },
 
   SECTION: {
+    role: "detailSubtitle",
     fontSizeDesktop: "16px",
     fontSizeMobile: "15px",
     fontWeight: 400,
@@ -65,6 +74,7 @@ const TEXT_CONFIG = {
   },
 
   DATE: {
+    role: "detailDate",
     fontSizeDesktop: "14px",
     fontSizeMobile: "13px",
     fontWeight: 600,
@@ -76,6 +86,7 @@ const TEXT_CONFIG = {
   },
 
   COVER_CAPTION: {
+    role: "detailCaption",
     fontSizeDesktop: "13px",
     fontSizeMobile: "12px",
     fontWeight: 400,
@@ -89,6 +100,7 @@ const TEXT_CONFIG = {
 
   // Press-release body paragraphs (paired 1:1 with gallery images)
   BODY: {
+    role: "detailBody",
     fontSizeDesktop: "14px",
     fontSizeMobile: "14px",
     fontWeight: 400,
@@ -101,6 +113,7 @@ const TEXT_CONFIG = {
   },
 
   IMAGE_CAPTION: {
+    role: "detailCaption",
     fontSizeDesktop: "13px",
     fontSizeMobile: "12px",
     fontWeight: 400,
@@ -114,6 +127,7 @@ const TEXT_CONFIG = {
 
   // Shared style for the "Works" / "Related Artists" section headings
   SECTION_HEADING: {
+    role: "detailSectionHeading",
     fontSizeDesktop: "11px",
     fontSizeMobile: "11px",
     fontWeight: 700,
@@ -127,6 +141,7 @@ const TEXT_CONFIG = {
 
   // Shared style for the Works + Related Artists text links (hover underline)
   LINK: {
+    role: "detailLink",
     fontSizeDesktop: "15px",
     fontSizeMobile: "13px",
     fontWeight: 400,
@@ -138,6 +153,7 @@ const TEXT_CONFIG = {
   },
 
   METADATA_LABEL: {
+    role: "detailMetaLabel",
     fontSizeDesktop: "12px",
     fontSizeMobile: "12px",
     fontWeight: 500,
@@ -149,6 +165,7 @@ const TEXT_CONFIG = {
   },
 
   METADATA_VALUE: {
+    role: "detailMetaValue",
     fontSizeDesktop: "15px",
     fontSizeMobile: "15px",
     fontWeight: 400,
@@ -241,11 +258,17 @@ function resolveColor(cfg, themeText) {
   return cfg.color || TEXT_CONFIG.BASE_COLOR || themeText;
 }
 
+// Resolve the branded font FILE for a block from the per-role fonts map
+// (populated by useFont(role) in the component). Falls back to detailBody.
+function resolveFont(cfg, fonts) {
+  return (cfg.role && fonts[cfg.role]) || fonts.detailBody;
+}
+
 // Build an MUI `sx` object from a TEXT_CONFIG block. `ctx` carries the
-// runtime bits (isMobile / fontFamily / theme text colour).
+// runtime bits (isMobile / fonts map / theme text colour).
 function textSx(cfg, ctx) {
   const sx = {
-    fontFamily: ctx.fontFamily,
+    fontFamily: resolveFont(cfg, ctx.fonts),
     fontSize: pickResponsive(cfg, ctx.isMobile, "fontSize"),
     fontWeight: cfg.fontWeight,
     color: resolveColor(cfg, ctx.themeText),
@@ -284,7 +307,7 @@ const METADATA_ORDER = [
 
 // ============================================================
 // Hover-underline text link (shared by Works + Related Artists),
-// sizing / opacity driven by TEXT_CONFIG.LINK
+// sizing / opacity driven by TEXT_CONFIG.LINK; font FILE passed in
 // ============================================================
 function HoverUnderlineLink({ label, href, index, isMobile, fontFamily, textColor }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -414,13 +437,28 @@ export default function FairDetailPageComponent() {
   const { isCn } = useContext(LanguageContext);
   const { isMobile } = useContext(DeviceContext);
   const { slug } = useParams();
-  const { fontFamily } = useFont();
+
+  // Per-role branded font FILES from the central type system (lib/typography.js).
+  // Each text element pulls its typeface from its own role; sizing/spacing stay
+  // in TEXT_CONFIG above. Roles are shared with the exhibition detail page, so
+  // swapping a typeface once in typography.js updates both pages.
+  const fonts = {
+    detailTitle: useFont("detailTitle").fontFamily,
+    detailSubtitle: useFont("detailSubtitle").fontFamily,
+    detailDate: useFont("detailDate").fontFamily,
+    detailCaption: useFont("detailCaption").fontFamily,
+    detailBody: useFont("detailBody").fontFamily,
+    detailSectionHeading: useFont("detailSectionHeading").fontFamily,
+    detailLink: useFont("detailLink").fontFamily,
+    detailMetaLabel: useFont("detailMetaLabel").fontFamily,
+    detailMetaValue: useFont("detailMetaValue").fontFamily,
+  };
 
   const { colors } = useReverseTheme() || { colors: { text: "#000", background: "#fff" } };
   const { modalOpen, selectedImage, handleImageClick, handleModalClose } = useImageZoom();
 
   // Runtime context passed into the textSx() builder
-  const ctx = { isMobile, fontFamily, themeText: colors.text };
+  const ctx = { isMobile, fonts, themeText: colors.text };
 
   // --- Data ------------------------------------------------
   const {
@@ -766,7 +804,7 @@ export default function FairDetailPageComponent() {
                         href={`/artworks?title=${encodeURIComponent(work)}`}
                         index={idx}
                         isMobile={isMobile}
-                        fontFamily={fontFamily}
+                        fontFamily={ctx.fonts.detailLink}
                         textColor={colors.text}
                       />
                     ))}
@@ -794,7 +832,7 @@ export default function FairDetailPageComponent() {
                         href={`/artist/${encodeURIComponent(artist.replace(/\s+/g, "-"))}`}
                         index={idx}
                         isMobile={isMobile}
-                        fontFamily={fontFamily}
+                        fontFamily={ctx.fonts.detailLink}
                         textColor={colors.text}
                       />
                     ))}
