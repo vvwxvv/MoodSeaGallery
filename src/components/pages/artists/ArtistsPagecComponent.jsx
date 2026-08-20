@@ -64,7 +64,7 @@ const CONFIG = {
 
   PREVIEW: {
     COLUMN_WIDTH: "54%",
-    MAX_WIDTH: 500,
+    MAX_WIDTH:450,
     // Fallback aspect ratio (width / height) used only until the first
     // image finishes loading and reports its real dimensions.
     FALLBACK_ASPECT_RATIO: 0.8,
