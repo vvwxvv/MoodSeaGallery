@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import LoadingAnimation from "@/components/animations/LoadingAnimation";
+import LoadingLayer from "@/components/animations/LoadingLayer";
 import AlertInfo from "@/components/alerts/AlertInfo";
 
 /**
@@ -47,7 +47,7 @@ export default function ManagerEditShell({
 
   /* ---------- UI states ---------- */
   if (isLoading)
-    return <LoadingAnimation isLoading />;
+    return <LoadingLayer isLoading />;
 
   if (error)
     return (
