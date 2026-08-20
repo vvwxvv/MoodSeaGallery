@@ -25,14 +25,14 @@ const CONFIG = {
   PAGE: {
     PADDING_HORIZONTAL: 50,
     PADDING_HORIZONTAL_MOBILE: 20,
-    PADDING_TOP_DESKTOP: 30,
+    PADDING_TOP_DESKTOP:10,
     PADDING_TOP_MOBILE: 24,
     PADDING_BOTTOM: 120,
     OFFSET_TOP: -10,
   },
 
   HEADING: {
-    FONT_SIZE_DESKTOP: "30px",
+    FONT_SIZE_DESKTOP: "24px",
     FONT_SIZE_MOBILE: "20px",
     FONT_WEIGHT: 500,
     LETTER_SPACING: "0.01em",
@@ -48,11 +48,11 @@ const CONFIG = {
 
   LIST: {
     COLUMN_WIDTH: "46%",
-    OFFSET_TOP: 50,
-    ITEM_GAP_DESKTOP: 18,
-    ITEM_GAP_MOBILE: 15,
-    ITEM_FONT_SIZE_DESKTOP: "17px",
-    ITEM_FONT_SIZE_MOBILE: "15px",
+    OFFSET_TOP: 0,
+    ITEM_GAP_DESKTOP: 10,
+    ITEM_GAP_MOBILE: 7,
+    ITEM_FONT_SIZE_DESKTOP: "15px",
+    ITEM_FONT_SIZE_MOBILE: "13px",
     ITEM_FONT_WEIGHT: 347,
     ITEM_LINE_HEIGHT: 1.4,
     ITEM_LETTER_SPACING: "0.02em",
@@ -64,7 +64,7 @@ const CONFIG = {
 
   PREVIEW: {
     COLUMN_WIDTH: "54%",
-    MAX_WIDTH: 540,
+    MAX_WIDTH: 500,
     // Fallback aspect ratio (width / height) used only until the first
     // image finishes loading and reports its real dimensions.
     FALLBACK_ASPECT_RATIO: 0.8,
