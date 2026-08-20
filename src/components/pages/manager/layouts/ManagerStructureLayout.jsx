@@ -41,7 +41,7 @@ import AddButton from "@/components/buttons/AddButton";
 import ViewModeToggle from "@/components/buttons/ViewModeToggle";
 import ButtonRow from "@/components/buttons/ButtonRow";
 import AlertInfo from "@/components/alerts/AlertInfo";
-import LoadingAnimation from "@/components/animations/LoadingAnimation";
+import LoadingLayer from "@/components/animations/LoadingLayer";
 import ManagerCard from "@/components/pages/manager/components/ManagerCard";
 import GridViewLayout from "@/components/layouts/GridViewLayout";
 import ListWithExpandInfo from "@/components/lists/ListWithExpandInfo";
@@ -900,7 +900,7 @@ export default function ManagerStructureLayout({ managerSchemaConfig }) {
   };
 
   const renderContent = () => {
-    if (isLoading) return <LoadingAnimation isLoading />;
+    if (isLoading) return <LoadingLayer isLoading />;
 
     if (error) {
       return (
