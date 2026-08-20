@@ -29,7 +29,7 @@ import AppSnackbar from "@/components/ui/Snackbar";
 import AlertInfo from "@/components/alerts/AlertInfo";
 import BatchDialog from "@/components/pages/manager/batch_edit/components/BatchDialog";
 import BatchEditDialog from "@/components/pages/manager/batch_edit/components/BatchEditDialog";
-import LoadingAnimation from "@/components/animations/LoadingAnimation";
+import LoadingLayer from "@/components/animations/LoadingLayer";
 import InfoBar from "@/components/alerts/InfoBar";
 import { useDarkMode } from "@/hooks/useDarkMode";
 import AlphabetPaginationBar from "@/components/navs/AlphabetPaginationBar";
@@ -472,7 +472,7 @@ export default function BatchEditLayout({
   };
 
   // ── early returns ─────────────────────────────────────────────────────────
-  if (isLoading) return <LoadingAnimation isLoading={isLoading} />;
+  if (isLoading) return <LoadingLayer isLoading={isLoading} />;
   if (error === "login_required") {
     return <AlertInfo message={getSystemLabel("loginRequired", isCn) || t.LOGIN_REQUIRED} subMessage={getSystemLabel("loginPrompt", isCn) || ""} isCn={isCn} />;
   }
