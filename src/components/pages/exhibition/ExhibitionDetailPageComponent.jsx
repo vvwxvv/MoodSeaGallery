@@ -28,8 +28,13 @@ import ImageZoomModal from "@/components/images/ImageZoomModal";
 // 🅰️  TEXT / TYPOGRAPHY CONFIG  — tune every piece of text here
 // ------------------------------------------------------------
 // Each block controls one text element on the page:
+//   role                              → which entry in lib/typography.js
+//                                        supplies the branded font FILE
+//                                        (via useFont(role)). Change the
+//                                        TYPEFACE for a role there; change
+//                                        its SIZE/weight/colour/gap here.
 //   fontSizeDesktop / fontSizeMobile  → responsive size
-//   fontWeight                        → 300–700
+//   fontWeight                        → 300–700 (CSS weight)
 //   color                             → null = follow the theme (colors.text,
 //                                        auto light/dark). Put a hex to override.
 //   opacity                           → 0–1
@@ -43,6 +48,7 @@ const TEXT_CONFIG = {
   BASE_COLOR: null, // e.g. "#111111" to force one colour on all text
 
   TITLE: {
+    role: "detailTitle",
     fontSizeDesktop: "26px",
     fontSizeMobile: "22px",
     fontWeight: 500,
@@ -51,10 +57,11 @@ const TEXT_CONFIG = {
     letterSpacing: "0.01em",
     lineHeight: 1.3,
     marginBottom: 8,
-    italicizeBeforeColon: true, // italic on the part before ":"  (e.g. *I Am Here*: subtitle)
+    italicizeBeforeColon: true, // italic on the part before ":"
   },
 
   SUBTITLE: {
+    role: "detailSubtitle",
     fontSizeDesktop: "16px",
     fontSizeMobile: "15px",
     fontWeight: 400,
@@ -66,6 +73,7 @@ const TEXT_CONFIG = {
   },
 
   DATE: {
+    role: "detailDate",
     fontSizeDesktop: "14px",
     fontSizeMobile: "13px",
     fontWeight: 600,
@@ -77,6 +85,7 @@ const TEXT_CONFIG = {
   },
 
   COVER_CAPTION: {
+    role: "detailCaption",
     fontSizeDesktop: "13px",
     fontSizeMobile: "12px",
     fontWeight: 400,
@@ -90,6 +99,7 @@ const TEXT_CONFIG = {
 
   // Primary body text (introduction, or description when there is no introduction)
   INTRO: {
+    role: "detailBody",
     fontSizeDesktop: "14px",
     fontSizeMobile: "14px",
     fontWeight: 400,
@@ -103,6 +113,7 @@ const TEXT_CONFIG = {
 
   // Trailing body text (description shown after the introduction, if both exist)
   DESCRIPTION: {
+    role: "detailBody",
     fontSizeDesktop: "14px",
     fontSizeMobile: "14px",
     fontWeight: 400,
@@ -115,6 +126,7 @@ const TEXT_CONFIG = {
   },
 
   IMAGE_CAPTION: {
+    role: "detailCaption",
     fontSizeDesktop: "13px",
     fontSizeMobile: "12px",
     fontWeight: 400,
@@ -128,6 +140,7 @@ const TEXT_CONFIG = {
 
   // Shared style for the "Works" / "Related Artists" section headings
   SECTION_HEADING: {
+    role: "detailSectionHeading",
     fontSizeDesktop: "11px",
     fontSizeMobile: "11px",
     fontWeight: 700,
@@ -140,6 +153,7 @@ const TEXT_CONFIG = {
   },
 
   ARTIST_LINK: {
+    role: "detailLink",
     fontSizeDesktop: "15px",
     fontSizeMobile: "13px",
     fontWeight: 400,
@@ -150,6 +164,7 @@ const TEXT_CONFIG = {
   },
 
   METADATA_LABEL: {
+    role: "detailMetaLabel",
     fontSizeDesktop: "12px",
     fontSizeMobile: "12px",
     fontWeight: 500,
@@ -161,6 +176,7 @@ const TEXT_CONFIG = {
   },
 
   METADATA_VALUE: {
+    role: "detailMetaValue",
     fontSizeDesktop: "15px",
     fontSizeMobile: "15px",
     fontWeight: 400,
@@ -175,13 +191,13 @@ const TEXT_CONFIG = {
 // 🅱️  LAYOUT / SPACING CONFIG  — all gaps between sections (px)
 // ============================================================
 const LAYOUT_CONFIG = {
-  HEADER_MB_DESKTOP: 38, // gap under the title/subtitle/date block
+  HEADER_MB_DESKTOP: 48, // gap under the title/subtitle/date block
   HEADER_MB_MOBILE: 32,
 
-  COVER_MB_DESKTOP: 34, // gap under the cover image
+  COVER_MB_DESKTOP: 64, // gap under the cover image
   COVER_MB_MOBILE: 40,
 
-  BODY_MT: 18, // gap above the body text
+  BODY_MT: 32, // gap above the body text
   BODY_BLOCK_GAP: 32, // gap between each (paragraph + image) block
   PARA_TO_IMAGE_GAP: 8, // gap between a paragraph and the image paired to it
 
@@ -255,11 +271,17 @@ function resolveColor(cfg, themeText) {
   return cfg.color || TEXT_CONFIG.BASE_COLOR || themeText;
 }
 
+// Resolve the branded font FILE for a block from the per-role fonts map
+// (populated by useFont(role) in the component). Falls back to detailBody.
+function resolveFont(cfg, fonts) {
+  return (cfg.role && fonts[cfg.role]) || fonts.detailBody;
+}
+
 // Build an MUI `sx` object from a TEXT_CONFIG block. `ctx` carries the
-// runtime bits (isMobile / fontFamily / theme text colour).
+// runtime bits (isMobile / fonts map / theme text colour).
 function textSx(cfg, ctx) {
   const sx = {
-    fontFamily: ctx.fontFamily,
+    fontFamily: resolveFont(cfg, ctx.fonts),
     fontSize: pickResponsive(cfg, ctx.isMobile, "fontSize"),
     fontWeight: cfg.fontWeight,
     color: resolveColor(cfg, ctx.themeText),
@@ -296,8 +318,8 @@ const METADATA_ORDER = [
 // 🎨 MATCHED ARTWORKS GRID — image-only grid at the bottom of the
 // exhibition detail page, styled to match the "Related Artworks" grid
 // on the artist detail page. No text renders below the image — images only.
-// (Heading styling now lives in TEXT_CONFIG.SECTION_HEADING, shared with
-// the Related Artists heading, so both stay in sync.)
+// (Heading styling lives in TEXT_CONFIG.SECTION_HEADING, shared with the
+// Related Artists heading, so both stay in sync.)
 //
 // Two grid modes, set independently for DESKTOP and MOBILE:
 //   "fixed" → an exact column count (GRID_COLUMNS_*).
@@ -361,7 +383,7 @@ function SkeletonBlock({ height = 200, sx = {} }) {
 
 // ============================================================
 // Artist name link with underline hover animation
-// (sizing / opacity driven by TEXT_CONFIG.ARTIST_LINK)
+// (sizing / opacity driven by TEXT_CONFIG.ARTIST_LINK; font FILE passed in)
 // ============================================================
 function ArtistNameLink({ name, slug, index, isMobile, fontFamily, textColor }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -426,13 +448,28 @@ export default function ExhibitionDetailPageComponent() {
   const { isCn } = useContext(LanguageContext);
   const { isMobile } = useContext(DeviceContext);
   const { slug } = useParams();
-  const { fontFamily } = useFont();
+
+  // Per-role branded font FILES from the central type system (lib/typography.js).
+  // Each text element pulls its typeface from its own role; sizing/spacing stay
+  // in TEXT_CONFIG above. Swap a typeface once in typography.js → every element
+  // on this page (and the fair page sharing the role) updates.
+  const fonts = {
+    detailTitle: useFont("detailTitle").fontFamily,
+    detailSubtitle: useFont("detailSubtitle").fontFamily,
+    detailDate: useFont("detailDate").fontFamily,
+    detailCaption: useFont("detailCaption").fontFamily,
+    detailBody: useFont("detailBody").fontFamily,
+    detailSectionHeading: useFont("detailSectionHeading").fontFamily,
+    detailLink: useFont("detailLink").fontFamily,
+    detailMetaLabel: useFont("detailMetaLabel").fontFamily,
+    detailMetaValue: useFont("detailMetaValue").fontFamily,
+  };
 
   const { colors } = useReverseTheme() || { colors: { text: "#000", background: "#fff" } };
   const { modalOpen, selectedImage, handleImageClick, handleModalClose } = useImageZoom();
 
   // Runtime context passed into the textSx() builder
-  const ctx = { isMobile, fontFamily, themeText: colors.text };
+  const ctx = { isMobile, fonts, themeText: colors.text };
 
   // --- Data ------------------------------------------------
   // useExhibitionDetailData already matches images to this exhibition
@@ -651,7 +688,7 @@ export default function ExhibitionDetailPageComponent() {
     );
   }
 
-  // Pre-build shared sx objects (keeps the JSX below clean)
+  // Pre-built shared heading sx
   const sectionHeadingSx = {
     ...textSx(TEXT_CONFIG.SECTION_HEADING, ctx),
     mb: `${TEXT_CONFIG.SECTION_HEADING.marginBottom}px`,
@@ -1001,7 +1038,7 @@ export default function ExhibitionDetailPageComponent() {
                                 >
                                   <Typography
                                     sx={{
-                                      fontFamily,
+                                      fontFamily: ctx.fonts.detailSectionHeading,
                                       fontSize: "10px",
                                       opacity: 0.2,
                                       textTransform: "uppercase",
@@ -1034,7 +1071,7 @@ export default function ExhibitionDetailPageComponent() {
                         slug={artistSlug(artist)}
                         index={idx}
                         isMobile={isMobile}
-                        fontFamily={fontFamily}
+                        fontFamily={ctx.fonts.detailLink}
                         textColor={colors.text}
                       />
                     ))}
