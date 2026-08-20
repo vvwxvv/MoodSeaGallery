@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useContext, useMemo, useState } from "react";
-import { Box, Container, Stack, Typography } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -23,6 +23,183 @@ import useData from "@/hooks/useData";
 
 // Images
 import ImageZoomModal from "@/components/images/ImageZoomModal";
+
+// ============================================================
+// 🅰️  TEXT / TYPOGRAPHY CONFIG  — tune every piece of text here
+// ------------------------------------------------------------
+// Each block controls one text element on the page:
+//   fontSizeDesktop / fontSizeMobile  → responsive size
+//   fontWeight                        → 300–700
+//   color                             → null = follow the theme (colors.text,
+//                                        auto light/dark). Put a hex to override.
+//   opacity                           → 0–1
+//   letterSpacing / lineHeight        → CSS values
+//   marginBottom (px)                 → the GAP under this element
+//   italic / textAlign / textTransform→ optional extras
+//
+// BASE_COLOR recolours EVERY element at once (still overridable per block).
+// ============================================================
+const TEXT_CONFIG = {
+  BASE_COLOR: null, // e.g. "#111111" to force one colour on all text
+
+  TITLE: {
+    fontSizeDesktop: "26px",
+    fontSizeMobile: "22px",
+    fontWeight: 500,
+    color: null,
+    opacity: 1,
+    letterSpacing: "0.01em",
+    lineHeight: 1.3,
+    marginBottom: 8,
+    italicizeBeforeColon: true, // italic on the part before ":"  (e.g. *I Am Here*: subtitle)
+  },
+
+  SUBTITLE: {
+    fontSizeDesktop: "16px",
+    fontSizeMobile: "15px",
+    fontWeight: 400,
+    color: null,
+    opacity: 0.7,
+    letterSpacing: "0em",
+    lineHeight: 1.5,
+    marginBottom: 8,
+  },
+
+  DATE: {
+    fontSizeDesktop: "14px",
+    fontSizeMobile: "13px",
+    fontWeight: 600,
+    color: null,
+    opacity: 0.9,
+    letterSpacing: "0.02em",
+    lineHeight: 1.5,
+    marginBottom: 0,
+  },
+
+  COVER_CAPTION: {
+    fontSizeDesktop: "13px",
+    fontSizeMobile: "12px",
+    fontWeight: 400,
+    color: null,
+    opacity: 0.5,
+    letterSpacing: "0em",
+    lineHeight: 1.5,
+    italic: true,
+    marginBottom: 0,
+  },
+
+  // Primary body text (introduction, or description when there is no introduction)
+  INTRO: {
+    fontSizeDesktop: "14px",
+    fontSizeMobile: "14px",
+    fontWeight: 400,
+    color: null,
+    opacity: 0.85,
+    letterSpacing: "0em",
+    lineHeight: 1.8,
+    textAlign: "justify",
+    marginBottom: 16,
+  },
+
+  // Trailing body text (description shown after the introduction, if both exist)
+  DESCRIPTION: {
+    fontSizeDesktop: "14px",
+    fontSizeMobile: "14px",
+    fontWeight: 400,
+    color: null,
+    opacity: 0.85,
+    letterSpacing: "0em",
+    lineHeight: 1.8,
+    textAlign: "justify",
+    marginBottom: 16,
+  },
+
+  IMAGE_CAPTION: {
+    fontSizeDesktop: "13px",
+    fontSizeMobile: "12px",
+    fontWeight: 400,
+    color: null,
+    opacity: 0.5,
+    letterSpacing: "0em",
+    lineHeight: 1.5,
+    italic: true,
+    marginTop: 12, // gap ABOVE the caption (sits under its image)
+  },
+
+  // Shared style for the "Works" / "Related Artists" section headings
+  SECTION_HEADING: {
+    fontSizeDesktop: "11px",
+    fontSizeMobile: "11px",
+    fontWeight: 700,
+    color: null,
+    opacity: 0.6,
+    letterSpacing: "0.15em",
+    lineHeight: 1.4,
+    textTransform: "uppercase",
+    marginBottom: 24,
+  },
+
+  ARTIST_LINK: {
+    fontSizeDesktop: "15px",
+    fontSizeMobile: "13px",
+    fontWeight: 400,
+    color: null,
+    idleOpacity: 0.75,
+    hoverOpacity: 1,
+    lineHeight: 1.5,
+  },
+
+  METADATA_LABEL: {
+    fontSizeDesktop: "12px",
+    fontSizeMobile: "12px",
+    fontWeight: 500,
+    color: null,
+    opacity: 0.45,
+    letterSpacing: "0.12em",
+    lineHeight: 1.5,
+    textTransform: "uppercase",
+  },
+
+  METADATA_VALUE: {
+    fontSizeDesktop: "15px",
+    fontSizeMobile: "15px",
+    fontWeight: 400,
+    color: null,
+    opacity: 0.9,
+    letterSpacing: "0em",
+    lineHeight: 1.6,
+  },
+};
+
+// ============================================================
+// 🅱️  LAYOUT / SPACING CONFIG  — all gaps between sections (px)
+// ============================================================
+const LAYOUT_CONFIG = {
+  HEADER_MB_DESKTOP: 38, // gap under the title/subtitle/date block
+  HEADER_MB_MOBILE: 32,
+
+  COVER_MB_DESKTOP: 34, // gap under the cover image
+  COVER_MB_MOBILE: 40,
+
+  BODY_MT: 18, // gap above the body text
+  BODY_BLOCK_GAP: 32, // gap between each (paragraph + image) block
+  PARA_TO_IMAGE_GAP: 8, // gap between a paragraph and the image paired to it
+
+  VIDEO_MT: 48,
+  VIDEO_MB: 48,
+
+  RELATED_MT_DESKTOP: 48, // gap above the Works/Artists area
+  RELATED_MT_MOBILE: 48,
+  RELATED_SECTION_GAP: 48, // gap between the Works grid and the Artists list
+
+  METADATA_MT_DESKTOP: 80,
+  METADATA_MT_MOBILE: 64,
+  METADATA_PT_DESKTOP: 40,
+  METADATA_PT_MOBILE: 32,
+  METADATA_ROW_PY_DESKTOP: 20, // vertical padding inside each metadata row
+  METADATA_ROW_PY_MOBILE: 16,
+  METADATA_LABEL_MINWIDTH: 200, // width of the uppercase label column (desktop)
+};
 
 // ============================================================
 // CONSTANTS & HELPERS
@@ -62,6 +239,40 @@ function extractParagraphs(content) {
   return [];
 }
 
+// Pick a responsive value from a config block that exposes
+// `<key>Desktop` / `<key>Mobile`, falling back to a plain `<key>`.
+function pickResponsive(cfg, isMobile, key = "fontSize") {
+  const d = cfg[`${key}Desktop`];
+  const m = cfg[`${key}Mobile`];
+  if (d != null || m != null) {
+    return isMobile ? m ?? d : d ?? m;
+  }
+  return cfg[key];
+}
+
+// Resolve a text colour: per-block override → global BASE_COLOR → theme text.
+function resolveColor(cfg, themeText) {
+  return cfg.color || TEXT_CONFIG.BASE_COLOR || themeText;
+}
+
+// Build an MUI `sx` object from a TEXT_CONFIG block. `ctx` carries the
+// runtime bits (isMobile / fontFamily / theme text colour).
+function textSx(cfg, ctx) {
+  const sx = {
+    fontFamily: ctx.fontFamily,
+    fontSize: pickResponsive(cfg, ctx.isMobile, "fontSize"),
+    fontWeight: cfg.fontWeight,
+    color: resolveColor(cfg, ctx.themeText),
+    opacity: cfg.opacity,
+    lineHeight: cfg.lineHeight,
+  };
+  if (cfg.letterSpacing) sx.letterSpacing = cfg.letterSpacing;
+  if (cfg.textAlign) sx.textAlign = cfg.textAlign;
+  if (cfg.textTransform) sx.textTransform = cfg.textTransform;
+  if (cfg.italic) sx.fontStyle = "italic";
+  return sx;
+}
+
 // Metadata labels
 const METADATA_LABELS = {
   venue: { en: "Venue", cn: "场馆" },
@@ -78,8 +289,52 @@ const METADATA_ORDER = [
   "curator",
   "organiser",
   "participating_artists",
-  "language",
+  // "language" intentionally omitted — not shown on the exhibition detail page
 ];
+
+// ============================================================
+// 🎨 MATCHED ARTWORKS GRID — image-only grid at the bottom of the
+// exhibition detail page, styled to match the "Related Artworks" grid
+// on the artist detail page. No text renders below the image — images only.
+// (Heading styling now lives in TEXT_CONFIG.SECTION_HEADING, shared with
+// the Related Artists heading, so both stay in sync.)
+//
+// Two grid modes, set independently for DESKTOP and MOBILE:
+//   "fixed" → an exact column count (GRID_COLUMNS_*).
+//   "auto"  → browser fits as many columns ≥ GRID_MIN_COLUMN_WIDTH_* as it can.
+// ============================================================
+const MATCHED_ARTWORKS_CONFIG = {
+  // ---- Desktop grid ----
+  GRID_MODE_DESKTOP: "auto", // "fixed" | "auto"
+  GRID_COLUMNS_DESKTOP: 4, // used when GRID_MODE_DESKTOP === "fixed"
+  GRID_MIN_COLUMN_WIDTH_DESKTOP: 180, // used when GRID_MODE_DESKTOP === "auto"
+
+  // ---- Mobile grid ----
+  GRID_MODE_MOBILE: "fixed", // "fixed" | "auto"
+  GRID_COLUMNS_MOBILE: 2, // used when GRID_MODE_MOBILE === "fixed"
+  GRID_MIN_COLUMN_WIDTH_MOBILE: 140, // used when GRID_MODE_MOBILE === "auto"
+
+  // ---- Spacing (px) ----
+  GRID_GAP_DESKTOP: 24,
+  GRID_GAP_MOBILE: 12,
+  GRID_ROW_GAP_DESKTOP: null, // set a number to override GRID_GAP_DESKTOP vertically
+  GRID_COLUMN_GAP_DESKTOP: null, // set a number to override GRID_GAP_DESKTOP horizontally
+  GRID_ROW_GAP_MOBILE: null,
+  GRID_COLUMN_GAP_MOBILE: null,
+
+  HOVER_SCALE: 1.03,
+  IMAGE_HOVER_TRANSITION: "transform 0.4s ease",
+  FALLBACK_ASPECT_RATIO: "3/2", // used only for the no-image placeholder box
+};
+
+/**
+ * Build a CSS `grid-template-columns` value from the "fixed" | "auto" mode.
+ */
+function buildGridTemplateColumns(mode, columns, minColumnWidth) {
+  return mode === "auto"
+    ? `repeat(auto-fill, minmax(${minColumnWidth}px, 1fr))`
+    : `repeat(${Math.max(1, Math.floor(columns) || 1)}, 1fr)`;
+}
 
 // ============================================================
 // Skeleton helpers — shared shimmer style
@@ -93,11 +348,7 @@ const skeletonBase = {
 };
 
 function SkeletonLine({ width, height = 14, sx = {} }) {
-  return (
-    <Box
-      sx={{ ...skeletonBase, width, height: `${height}px`, ...sx }}
-    />
-  );
+  return <Box sx={{ ...skeletonBase, width, height: `${height}px`, ...sx }} />;
 }
 
 function SkeletonBlock({ height = 200, sx = {} }) {
@@ -110,9 +361,13 @@ function SkeletonBlock({ height = 200, sx = {} }) {
 
 // ============================================================
 // Artist name link with underline hover animation
+// (sizing / opacity driven by TEXT_CONFIG.ARTIST_LINK)
 // ============================================================
 function ArtistNameLink({ name, slug, index, isMobile, fontFamily, textColor }) {
   const [isHovered, setIsHovered] = useState(false);
+  const C = TEXT_CONFIG.ARTIST_LINK;
+  const color = C.color || TEXT_CONFIG.BASE_COLOR || textColor;
+  const fontSize = pickResponsive(C, isMobile, "fontSize");
 
   return (
     <motion.div
@@ -126,17 +381,18 @@ function ArtistNameLink({ name, slug, index, isMobile, fontFamily, textColor }) 
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
-          textDecoration: 'none',
-          color: textColor,
-          display: 'inline-block',
-          position: 'relative',
+          textDecoration: "none",
+          color,
+          display: "inline-block",
+          position: "relative",
           fontFamily,
-          fontSize: isMobile ? '13px' : '15px',
-          lineHeight: 1.5,
-          opacity: isHovered ? 1 : 0.75,
-          padding: '2px 0 4px',
-          transition: 'opacity 0.2s ease',
-          outline: 'none',
+          fontSize,
+          fontWeight: C.fontWeight,
+          lineHeight: C.lineHeight,
+          opacity: isHovered ? C.hoverOpacity : C.idleOpacity,
+          padding: "2px 0 4px",
+          transition: "opacity 0.2s ease",
+          outline: "none",
         }}
       >
         {name}
@@ -144,16 +400,16 @@ function ArtistNameLink({ name, slug, index, isMobile, fontFamily, textColor }) 
           aria-hidden
           initial={false}
           animate={{ scaleX: isHovered ? 1 : 0 }}
-          transition={{ duration: 0.25, ease: 'easeInOut' }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
           style={{
-            position: 'absolute',
+            position: "absolute",
             bottom: 0,
             left: 0,
             right: 0,
-            height: '1px',
-            backgroundColor: textColor,
-            transformOrigin: 'left',
-            pointerEvents: 'none',
+            height: "1px",
+            backgroundColor: color,
+            transformOrigin: "left",
+            pointerEvents: "none",
           }}
         />
       </Link>
@@ -174,6 +430,9 @@ export default function ExhibitionDetailPageComponent() {
 
   const { colors } = useReverseTheme() || { colors: { text: "#000", background: "#fff" } };
   const { modalOpen, selectedImage, handleImageClick, handleModalClose } = useImageZoom();
+
+  // Runtime context passed into the textSx() builder
+  const ctx = { isMobile, fontFamily, themeText: colors.text };
 
   // --- Data ------------------------------------------------
   // useExhibitionDetailData already matches images to this exhibition
@@ -205,6 +464,7 @@ export default function ExhibitionDetailPageComponent() {
       .toLowerCase()
       .replace(/\s+/g, "_")
       .replace(/[^\p{L}\p{N}_-]/gu, "");
+
   const exhibitionTitle = exhibition?.title || (isCn ? "无题" : "Untitled");
   const dateRange =
     formatSimpleDateRange(exhibition?.date_start, exhibition?.date_end) ||
@@ -228,10 +488,14 @@ export default function ExhibitionDetailPageComponent() {
     () => extractParagraphs(exhibition?.description),
     [exhibition]
   );
-  const allTextParagraphs = useMemo(
-    () => [...introductionParas, ...descriptionParas],
-    [introductionParas, descriptionParas]
-  );
+
+  // Body layout rule:
+  //   • primaryParas  → paired 1:1 with gallery images (introduction if it
+  //     exists, otherwise description so a description-only show still pairs).
+  //   • trailingParas → description shown as plain text AFTER the paired block,
+  //     but only when there is a separate introduction above it.
+  const primaryParas = introductionParas.length ? introductionParas : descriptionParas;
+  const trailingParas = introductionParas.length ? descriptionParas : [];
 
   // Safely normalize arrays to prevent mapping errors if a string is returned
   const relatedArtworks = useMemo(() => {
@@ -239,7 +503,6 @@ export default function ExhibitionDetailPageComponent() {
     const raw = Array.isArray(exhibition.related_artwork_title)
       ? exhibition.related_artwork_title
       : [exhibition.related_artwork_title];
-    // Filter out empty/whitespace entries
     return raw.filter((t) => String(t || "").trim());
   }, [exhibition]);
 
@@ -248,7 +511,6 @@ export default function ExhibitionDetailPageComponent() {
     const raw = Array.isArray(exhibition.related_gallery_artist)
       ? exhibition.related_gallery_artist
       : [exhibition.related_gallery_artist];
-    // Filter out empty/whitespace entries
     return raw.filter((name) => String(name || "").trim());
   }, [exhibition]);
 
@@ -264,20 +526,29 @@ export default function ExhibitionDetailPageComponent() {
 
   const isDataLoading = isLoading || artworksLoading;
 
-  // One introduction paragraph <-> one image, matched in order
-  const pairedIntroImages = useMemo(() => {
-    if (!introductionParas.length) return [];
-    return introductionParas.map((intro, idx) => ({
-      intro,
-      image: galleryImages[idx] || null,
-    }));
-  }, [introductionParas, galleryImages]);
+  // ---- SMART 1:1 PAIRING -----------------------------------
+  // Walk paragraphs and images in parallel: paragraph[i] ↔ image[i].
+  // Counts don't have to match — we run to the longer of the two and keep
+  // BOTH leftovers:
+  //   • more paragraphs than images → trailing paragraphs render text-only
+  //   • more images than paragraphs → trailing images render image-only
+  // Nothing is ever dropped.
+  const pairedBody = useMemo(() => {
+    const max = Math.max(primaryParas.length, galleryImages.length);
+    const rows = [];
+    for (let i = 0; i < max; i++) {
+      rows.push({
+        text: primaryParas[i] ?? null,
+        image: galleryImages[i] ?? null,
+      });
+    }
+    return rows;
+  }, [primaryParas, galleryImages]);
 
   // --- Render: loading -------------------------------------
   if (isDataLoading) {
     return (
       <Box sx={{ minHeight: "100vh", backgroundColor: colors.background }}>
-        {/* Loading pulse indicator */}
         <Box
           sx={{
             position: "fixed",
@@ -293,7 +564,6 @@ export default function ExhibitionDetailPageComponent() {
         />
         <LoadingAnimation isLoading />
         <Container maxWidth="md" sx={{ px: { xs: 3, md: 4 }, py: { xs: 6, md: 10 } }}>
-          {/* Title skeleton */}
           <Box sx={{ mb: { xs: 4, md: 6 } }}>
             <SkeletonLine width="60%" height={isMobile ? 22 : 26} />
             <Box sx={{ mt: 1 }}>
@@ -301,28 +571,24 @@ export default function ExhibitionDetailPageComponent() {
             </Box>
           </Box>
 
-          {/* Cover image skeleton */}
           <Box sx={{ mb: { xs: 5, md: 8 } }}>
             <SkeletonBlock height={isMobile ? 220 : 400} />
           </Box>
 
-          {/* Intro paragraphs skeleton */}
           <Box sx={{ mt: 4 }}>
             <SkeletonLine width="100%" height={14} sx={{ mb: 1 }} />
             <SkeletonLine width="95%" height={14} sx={{ mb: 1 }} />
             <SkeletonLine width="88%" height={14} sx={{ mb: 1 }} />
             <SkeletonLine width="60%" height={14} sx={{ mb: 3 }} />
 
-            {/* Paired image placeholder */}
-            <Box sx={{ width: "100%", maxWidth: "300px", mx: "auto", mb: 4 }}>
-              <SkeletonBlock height={200} />
+            <Box sx={{ width: "100%", mb: 4 }}>
+              <SkeletonBlock height={isMobile ? 260 : 420} />
             </Box>
 
             <SkeletonLine width="100%" height={14} sx={{ mb: 1 }} />
             <SkeletonLine width="70%" height={14} />
           </Box>
 
-          {/* Related section skeleton */}
           <Box sx={{ mt: 6 }}>
             <SkeletonLine width="100px" height={11} sx={{ mb: 2 }} />
             <Box sx={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -339,8 +605,14 @@ export default function ExhibitionDetailPageComponent() {
             </Box>
           </Box>
 
-          {/* Metadata skeleton */}
-          <Box sx={{ mt: { xs: 8, md: 10 }, pt: { xs: 4, md: 5 }, borderTop: `1px solid ${colors.text}`, opacity: 0.25 }}>
+          <Box
+            sx={{
+              mt: { xs: 8, md: 10 },
+              pt: { xs: 4, md: 5 },
+              borderTop: `1px solid ${colors.text}`,
+              opacity: 0.25,
+            }}
+          >
             {[1, 2, 3, 4].map((i) => (
               <Box key={i} sx={{ display: "flex", gap: 2, mb: 1.5 }}>
                 <SkeletonLine width="160px" height={13} />
@@ -360,7 +632,11 @@ export default function ExhibitionDetailPageComponent() {
         <ErrorState error={firstError} isCn={isCn} />
         <FormAlert
           severity="error"
-          message={isCn ? "加载展览数据时出错，请稍后重试。" : "An error occurred while loading exhibition data."}
+          message={
+            isCn
+              ? "加载展览数据时出错，请稍后重试。"
+              : "An error occurred while loading exhibition data."
+          }
         />
       </Box>
     );
@@ -375,121 +651,192 @@ export default function ExhibitionDetailPageComponent() {
     );
   }
 
+  // Pre-build shared sx objects (keeps the JSX below clean)
+  const sectionHeadingSx = {
+    ...textSx(TEXT_CONFIG.SECTION_HEADING, ctx),
+    mb: `${TEXT_CONFIG.SECTION_HEADING.marginBottom}px`,
+    pb: "8px",
+    borderBottom: `1px solid ${colors.text}`,
+    display: "inline-block",
+  };
+
   // --- Render: main UI -------------------------------------
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: colors.background, color: colors.text }}>
-      <Container
-        maxWidth="md"
-        sx={{
-          px: { xs: 3, md: 4 },
-          py: { xs: 6, md: 10 },
-        }}
-      >
+      <Container maxWidth="md" sx={{ px: { xs: 3, md: 4 }, py: { xs: 6, md: 10 } }}>
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         >
-
           {/* 1. Header (Title, Subtitle & Date) */}
-          <Box sx={{ mb: { xs: 4, md: 6 } }}>
-            {exhibitionTitle.includes(":") ? (
-              <h1 style={{ fontFamily, fontSize: isMobile ? "22px" : "26px", fontWeight: 500, margin: "0 0 8px 0", letterSpacing: "0.01em", lineHeight: 1.3 }}>
-                <span style={{ fontStyle: "italic" }}>{exhibitionTitle.split(":")[0]}</span>
-                :{exhibitionTitle.split(":").slice(1).join(":")}
-              </h1>
-            ) : (
-              <h1 style={{ fontFamily, fontSize: isMobile ? "22px" : "26px", fontWeight: 500, margin: "0 0 8px 0", letterSpacing: "0.01em", lineHeight: 1.3 }}>
-                {exhibitionTitle}
-              </h1>
-            )}
+          <Box
+            sx={{
+              mb: {
+                xs: `${LAYOUT_CONFIG.HEADER_MB_MOBILE}px`,
+                md: `${LAYOUT_CONFIG.HEADER_MB_DESKTOP}px`,
+              },
+            }}
+          >
+            <Typography
+              component="h1"
+              sx={{
+                ...textSx(TEXT_CONFIG.TITLE, ctx),
+                m: 0,
+                mb: `${TEXT_CONFIG.TITLE.marginBottom}px`,
+              }}
+            >
+              {TEXT_CONFIG.TITLE.italicizeBeforeColon && exhibitionTitle.includes(":") ? (
+                <>
+                  <span style={{ fontStyle: "italic" }}>
+                    {exhibitionTitle.split(":")[0]}
+                  </span>
+                  :{exhibitionTitle.split(":").slice(1).join(":")}
+                </>
+              ) : (
+                exhibitionTitle
+              )}
+            </Typography>
 
             {/* Subtitle */}
             {exhibition.subtitle && (
-              <p style={{ fontFamily, fontSize: "16px", fontWeight: 400, margin: "0 0 8px 0", opacity: 0.7 }}>
+              <Typography
+                sx={{
+                  ...textSx(TEXT_CONFIG.SUBTITLE, ctx),
+                  m: 0,
+                  mb: `${TEXT_CONFIG.SUBTITLE.marginBottom}px`,
+                }}
+              >
                 {exhibition.subtitle}
-              </p>
+              </Typography>
             )}
 
             {/* Date */}
             {dateRange && (
-              <p style={{ fontFamily, fontSize: "14px", fontWeight: 600, margin: 0, opacity: 0.9, letterSpacing: "0.02em" }}>
+              <Typography
+                sx={{
+                  ...textSx(TEXT_CONFIG.DATE, ctx),
+                  m: 0,
+                  mb: `${TEXT_CONFIG.DATE.marginBottom}px`,
+                }}
+              >
                 {dateRange}
-              </p>
+              </Typography>
             )}
           </Box>
 
           {/* 2. Cover Image & Caption */}
           {finalCoverImageUrl ? (
-            <Box sx={{ mb: { xs: 5, md: 8 } }}>
+            <Box
+              sx={{
+                mb: {
+                  xs: `${LAYOUT_CONFIG.COVER_MB_MOBILE}px`,
+                  md: `${LAYOUT_CONFIG.COVER_MB_DESKTOP}px`,
+                },
+              }}
+            >
               <Box
                 sx={{
                   width: "100%",
                   cursor: "zoom-in",
                   backgroundColor: "rgba(0,0,0,0.02)",
-                  mb: exhibition.caption ? 1.5 : 0
+                  mb: exhibition.caption ? 1.5 : 0,
                 }}
                 onClick={() => handleImageClick(finalCoverImageUrl)}
               >
-                <img src={finalCoverImageUrl} alt={exhibitionTitle} style={{ width: "100%", height: "auto", display: "block", objectFit: "cover" }} />
+                <img
+                  src={finalCoverImageUrl}
+                  alt={exhibitionTitle}
+                  style={{ width: "100%", height: "auto", display: "block", objectFit: "cover" }}
+                />
               </Box>
               {exhibition.caption && (
-                <Typography sx={{ fontFamily, fontSize: "13px", fontStyle: "italic", opacity: 0.5, lineHeight: 1.5, px: 0.5 }}>
-                  {exhibition.caption.replace(/\\n/g, '\n')}
+                <Typography
+                  sx={{ ...textSx(TEXT_CONFIG.COVER_CAPTION, ctx), whiteSpace: "pre-line", px: 0.5 }}
+                >
+                  {exhibition.caption.replace(/\\n/g, "\n")}
                 </Typography>
               )}
             </Box>
           ) : (
-            /* Show caption even without cover image */
             exhibition.caption && (
-              <Box sx={{ mb: { xs: 5, md: 8 } }}>
-                <Typography sx={{ fontFamily, fontSize: "13px", fontStyle: "italic", opacity: 0.5, lineHeight: 1.5 }}>
-                  {exhibition.caption.replace(/\\n/g, '\n')}
+              <Box
+                sx={{
+                  mb: {
+                    xs: `${LAYOUT_CONFIG.COVER_MB_MOBILE}px`,
+                    md: `${LAYOUT_CONFIG.COVER_MB_DESKTOP}px`,
+                  },
+                }}
+              >
+                <Typography sx={{ ...textSx(TEXT_CONFIG.COVER_CAPTION, ctx), whiteSpace: "pre-line" }}>
+                  {exhibition.caption.replace(/\\n/g, "\n")}
                 </Typography>
               </Box>
             )
           )}
 
-          {/* 3. Introduction paragraphs paired 1:1 with images, falling back
-                to plain paragraph text, falling back to an empty-state note */}
-          {pairedIntroImages.length > 0 ? (
-            <Box sx={{ mt: 4 }}>
-              {pairedIntroImages.map((pair, idx) => (
-                <Box key={idx} sx={{ mb: 4 }}>
-                  {/* Introduction paragraph */}
-                  <Typography
-                    sx={{
-                      fontFamily,
-                      fontSize: "14px",
-                      lineHeight: 1.8,
-                      opacity: 0.85,
-                      textAlign: "justify",
-                      mb: 2,
-                    }}
-                  >
-                    {pair.intro.replace(/\\n/g, '\n')}
-                  </Typography>
+          {/* 3. Body — paragraphs paired 1:1 with gallery images (interleaved) */}
+          {pairedBody.length > 0 && (
+            <Box sx={{ mt: `${LAYOUT_CONFIG.BODY_MT}px` }}>
+              {pairedBody.map((row, idx) => (
+                <Box
+                  key={idx}
+                  sx={{
+                    mb: `${LAYOUT_CONFIG.BODY_BLOCK_GAP}px`,
+                    "&:last-of-type": { mb: 0 },
+                  }}
+                >
+                  {/* Paragraph (skipped when this row is image-only) */}
+                  {row.text && (
+                    <Typography
+                      sx={{
+                        ...textSx(TEXT_CONFIG.INTRO, ctx),
+                        whiteSpace: "pre-line",
+                        mb: row.image ? `${LAYOUT_CONFIG.PARA_TO_IMAGE_GAP}px` : 0,
+                      }}
+                    >
+                      {row.text.replace(/\\n/g, "\n")}
+                    </Typography>
+                  )}
 
-                  {/* Paired image (if one exists at this index) */}
-                  {pair.image && (
-                    <Box sx={{ width: "100%", maxWidth: "300px", mx: "auto" }}>
-                      <img
-                        src={pair.image.img_url}
-                        alt={pair.image.caption_en || pair.image.caption_cn || "Exhibition Image"}
-                        style={{ width: "100%", height: "auto", borderRadius: "8px" }}
-                      />
-                      {(pair.image.caption_en || pair.image.caption_cn) && (
+                  {/* Paired image (skipped when this row is text-only) —
+                      full-width, so body images never read as small thumbnails. */}
+                  {row.image && (
+                    <Box sx={{ width: "100%", mt: row.text ? 1 : 0 }}>
+                      <Box
+                        sx={{
+                          width: "100%",
+                          cursor: "zoom-in",
+                          backgroundColor: "rgba(0,0,0,0.02)",
+                        }}
+                        onClick={() => handleImageClick(row.image.img_url)}
+                      >
+                        <img
+                          src={row.image.img_url}
+                          alt={
+                            row.image.caption_en ||
+                            row.image.caption_cn ||
+                            "Exhibition Image"
+                          }
+                          loading="lazy"
+                          decoding="async"
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            display: "block",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Box>
+                      {(row.image.caption_en || row.image.caption_cn) && (
                         <Typography
                           sx={{
-                            fontFamily,
-                            fontSize: "12px",
-                            fontStyle: "italic",
-                            opacity: 0.7,
-                            mt: 1,
-                            textAlign: "center",
+                            ...textSx(TEXT_CONFIG.IMAGE_CAPTION, ctx),
+                            mt: `${TEXT_CONFIG.IMAGE_CAPTION.marginTop}px`,
+                            px: 0.5,
                           }}
                         >
-                          {isCn ? pair.image.caption_cn : pair.image.caption_en}
+                          {isCn ? row.image.caption_cn : row.image.caption_en}
                         </Typography>
                       )}
                     </Box>
@@ -497,48 +844,55 @@ export default function ExhibitionDetailPageComponent() {
                 </Box>
               ))}
             </Box>
-          ) : allTextParagraphs.length > 0 ? (
-            <Box sx={{ mt: 4 }}>
-              {allTextParagraphs.map((para, idx) => (
+          )}
+
+          {/* 3b. Trailing description (only when an introduction exists above) */}
+          {trailingParas.length > 0 && (
+            <Box
+              sx={{
+                mt: pairedBody.length
+                  ? `${LAYOUT_CONFIG.BODY_BLOCK_GAP}px`
+                  : `${LAYOUT_CONFIG.BODY_MT}px`,
+              }}
+            >
+              {trailingParas.map((para, idx) => (
                 <Typography
                   key={idx}
                   sx={{
-                    fontFamily,
-                    fontSize: "14px",
-                    lineHeight: 1.8,
-                    opacity: 0.85,
-                    textAlign: "justify",
-                    mb: 2,
+                    ...textSx(TEXT_CONFIG.DESCRIPTION, ctx),
+                    whiteSpace: "pre-line",
+                    mb: `${TEXT_CONFIG.DESCRIPTION.marginBottom}px`,
+                    "&:last-of-type": { mb: 0 },
                   }}
                 >
-                  {para}
+                  {para.replace(/\\n/g, "\n")}
                 </Typography>
               ))}
             </Box>
-          ) : null}
+          )}
 
           {/* 4. Video Player */}
           {exhibition.video_url && (
             <Box
               sx={{
-                mt: 6,
-                mb: 6,
-                position: 'relative',
-                paddingTop: '56.25%', // 16:9 Aspect Ratio
-                width: '100%',
-                backgroundColor: '#000'
+                mt: `${LAYOUT_CONFIG.VIDEO_MT}px`,
+                mb: `${LAYOUT_CONFIG.VIDEO_MB}px`,
+                position: "relative",
+                paddingTop: "56.25%", // 16:9
+                width: "100%",
+                backgroundColor: "#000",
               }}
             >
               <iframe
                 src={exhibition.video_url}
                 title="Exhibition Video"
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   top: 0,
                   left: 0,
-                  width: '100%',
-                  height: '100%',
-                  border: 0
+                  width: "100%",
+                  height: "100%",
+                  border: 0,
                 }}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -548,139 +902,131 @@ export default function ExhibitionDetailPageComponent() {
 
           {/* 5. Related Artwork & Gallery Artists */}
           {(matchedArtworks.length > 0 || relatedArtists.length > 0) && (
-            <Box sx={{ mt: exhibition.video_url ? 2 : 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <Box
+              sx={{
+                mt: exhibition.video_url
+                  ? 2
+                  : {
+                      xs: `${LAYOUT_CONFIG.RELATED_MT_MOBILE}px`,
+                      md: `${LAYOUT_CONFIG.RELATED_MT_DESKTOP}px`,
+                    },
+                display: "flex",
+                flexDirection: "column",
+                gap: `${LAYOUT_CONFIG.RELATED_SECTION_GAP}px`,
+              }}
+            >
+              {/* Works — image-only grid */}
+              {matchedArtworks.length > 0 &&
+                (() => {
+                  const G = MATCHED_ARTWORKS_CONFIG;
+                  const mode = isMobile ? G.GRID_MODE_MOBILE : G.GRID_MODE_DESKTOP;
+                  const columns = isMobile ? G.GRID_COLUMNS_MOBILE : G.GRID_COLUMNS_DESKTOP;
+                  const minColumnWidth = isMobile
+                    ? G.GRID_MIN_COLUMN_WIDTH_MOBILE
+                    : G.GRID_MIN_COLUMN_WIDTH_DESKTOP;
+                  const baseGap = isMobile ? G.GRID_GAP_MOBILE : G.GRID_GAP_DESKTOP;
+                  const rowGap =
+                    (isMobile ? G.GRID_ROW_GAP_MOBILE : G.GRID_ROW_GAP_DESKTOP) ?? baseGap;
+                  const columnGap =
+                    (isMobile ? G.GRID_COLUMN_GAP_MOBILE : G.GRID_COLUMN_GAP_DESKTOP) ?? baseGap;
+                  const gridTemplateColumns = buildGridTemplateColumns(
+                    mode,
+                    columns,
+                    minColumnWidth
+                  );
 
-              {/* Artworks section — image thumbnails grid */}
-              {matchedArtworks.length > 0 && (
-                <Box>
-                  <Typography sx={{ fontFamily, fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.6, mb: 3, pb: '8px', borderBottom: `1px solid ${colors.text}`, display: 'inline-block' }}>
-                    {isCn ? "作品" : "Works"}
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: isMobile
-                        ? 'repeat(2, 1fr)'
-                        : 'repeat(auto-fill, minmax(180px, 1fr))',
-                      gap: isMobile ? '12px' : '24px',
-                    }}
-                  >
-                    {matchedArtworks.map((aw, idx) => (
-                      <Link
-                        key={aw.id || aw._id || idx}
-                        href={`/artworks/${artworkSlug(aw.title)}?artist=${encodeURIComponent(
-                          (aw.artist || "").replace(/\s+/g, "-")
-                        )}`}
-                        style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                  return (
+                    <Box>
+                      <Typography sx={sectionHeadingSx}>
+                        {isCn ? "作品" : "Works"}
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gridTemplateColumns,
+                          columnGap: `${columnGap}px`,
+                          rowGap: `${rowGap}px`,
+                        }}
                       >
-                        <motion.div
-                          initial={{ opacity: 0, y: 12 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: idx * 0.05, duration: 0.4 }}
-                        >
-                          {/* Thumbnail */}
-                          <Box
-                            sx={{
-                              width: '100%',
-                              aspectRatio: '1/1',
-                              overflow: 'hidden',
-                              backgroundColor: 'rgba(0,0,0,0.03)',
-                              mb: 1,
+                        {matchedArtworks.map((aw, idx) => (
+                          <Link
+                            key={aw.id || aw._id || idx}
+                            href={`/artworks/${artworkSlug(aw.title)}?artist=${encodeURIComponent(
+                              (aw.artist || "").replace(/\s+/g, "-")
+                            )}`}
+                            style={{
+                              textDecoration: "none",
+                              color: "inherit",
+                              display: "block",
                             }}
                           >
-                            {aw.cover_img_url ? (
-                              <img
-                                src={aw.cover_img_url}
-                                alt={aw.title || ''}
-                                loading="lazy"
-                                decoding="async"
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover',
-                                  transition: 'transform 0.4s ease',
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.transform = 'scale(1.03)';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.transform = 'scale(1)';
-                                }}
-                              />
-                            ) : (
-                              <Box
-                                sx={{
-                                  width: '100%',
-                                  height: '100%',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                <Typography
+                            <motion.div
+                              initial={{ opacity: 0, y: 12 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true, margin: "-50px" }}
+                              transition={{
+                                delay: isMobile ? 0 : (idx % 10) * 0.05,
+                                duration: 0.4,
+                              }}
+                            >
+                              {aw.cover_img_url ? (
+                                <img
+                                  src={aw.cover_img_url}
+                                  alt={aw.title || ""}
+                                  loading="lazy"
+                                  decoding="async"
+                                  style={{
+                                    width: "100%",
+                                    height: "auto",
+                                    display: "block",
+                                    transition: G.IMAGE_HOVER_TRANSITION,
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = `scale(${G.HOVER_SCALE})`;
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = "scale(1)";
+                                  }}
+                                />
+                              ) : (
+                                <Box
                                   sx={{
-                                    fontFamily,
-                                    fontSize: '10px',
-                                    opacity: 0.2,
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.1em',
+                                    width: "100%",
+                                    aspectRatio: G.FALLBACK_ASPECT_RATIO,
+                                    backgroundColor: "rgba(0,0,0,0.03)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
                                   }}
                                 >
-                                  No Image
-                                </Typography>
-                              </Box>
-                            )}
-                          </Box>
+                                  <Typography
+                                    sx={{
+                                      fontFamily,
+                                      fontSize: "10px",
+                                      opacity: 0.2,
+                                      textTransform: "uppercase",
+                                      letterSpacing: "0.1em",
+                                    }}
+                                  >
+                                    {isCn ? "无图" : "No Image"}
+                                  </Typography>
+                                </Box>
+                              )}
+                            </motion.div>
+                          </Link>
+                        ))}
+                      </Box>
+                    </Box>
+                  );
+                })()}
 
-                          {/* Caption */}
-                          <Typography
-                            sx={{
-                              fontFamily,
-                              fontSize: isMobile ? '10px' : '11px',
-                              fontWeight: 600,
-                              letterSpacing: '0.08em',
-                              textTransform: 'uppercase',
-                              opacity: 0.85,
-                              mb: 0.25,
-                            }}
-                          >
-                            {aw.artist || ''}
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontFamily,
-                              fontSize: isMobile ? '11px' : '12px',
-                              fontStyle: 'italic',
-                              lineHeight: 1.3,
-                              mb: 0.25,
-                            }}
-                          >
-                            {aw.title || (isCn ? '无题' : 'Untitled')}
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontFamily,
-                              fontSize: isMobile ? '10px' : '11px',
-                              opacity: 0.5,
-                            }}
-                          >
-                            {[aw.year, aw.medium].filter(Boolean).join(', ')}
-                          </Typography>
-                        </motion.div>
-                      </Link>
-                    ))}
-                  </Box>
-                </Box>
-              )}
-
-              {/* Artists section — with underline hover animation */}
+              {/* Related Artists — underline hover animation */}
               {relatedArtists.length > 0 && (
                 <Box>
-                  <Typography sx={{ fontFamily, fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.6, mb: 2, pb: '8px', borderBottom: `1px solid ${colors.text}`, display: 'inline-block' }}>
+                  <Typography sx={sectionHeadingSx}>
                     {isCn ? "相关艺术家" : "Related Artists"}
                   </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     {relatedArtists.map((artist, idx) => (
                       <ArtistNameLink
                         key={`artist-${idx}`}
@@ -698,58 +1044,68 @@ export default function ExhibitionDetailPageComponent() {
             </Box>
           )}
 
-          {/* 6. Metadata Info Section */}
-          <Box
-            sx={{
-              mt: { xs: 8, md: 10 },
-              pt: { xs: 4, md: 5 },
-              borderTop: `1px solid ${colors.text}`,
-              opacity: 0.85
-            }}
-          >
-            {METADATA_ORDER.map((key) => {
-              const value = exhibition[key];
-              if (!value) return null;
+          {/* 6. Metadata Info Section — gallery-style info table */}
+          {(() => {
+            const metadataRows = METADATA_ORDER.map((key) => ({
+              key,
+              value: exhibition[key],
+              label: METADATA_LABELS[key]
+                ? isCn
+                  ? METADATA_LABELS[key].cn
+                  : METADATA_LABELS[key].en
+                : key,
+            })).filter((row) => row.value);
 
-              const label = METADATA_LABELS[key]
-                ? (isCn ? METADATA_LABELS[key].cn : METADATA_LABELS[key].en)
-                : key;
+            if (metadataRows.length === 0) return null;
 
-              return (
-                <Stack
-                  key={key}
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={{ xs: 0.5, sm: 2 }}
-                  sx={{ mb: 1.5 }}
-                >
-                  <Typography
+            return (
+              <Box
+                sx={{
+                  mt: {
+                    xs: `${LAYOUT_CONFIG.METADATA_MT_MOBILE}px`,
+                    md: `${LAYOUT_CONFIG.METADATA_MT_DESKTOP}px`,
+                  },
+                  pt: {
+                    xs: `${LAYOUT_CONFIG.METADATA_PT_MOBILE}px`,
+                    md: `${LAYOUT_CONFIG.METADATA_PT_DESKTOP}px`,
+                  },
+                  borderTop: `1px solid ${colors.text}`,
+                }}
+              >
+                {metadataRows.map((row, idx) => (
+                  <Box
+                    key={row.key}
                     sx={{
-                      fontFamily,
-                      fontSize: "13px",
-                      fontWeight: 600,
-                      minWidth: "160px",
-                      opacity: 0.6,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em"
+                      display: "flex",
+                      flexDirection: { xs: "column", sm: "row" },
+                      gap: { xs: 0.5, sm: 4 },
+                      py: {
+                        xs: `${LAYOUT_CONFIG.METADATA_ROW_PY_MOBILE}px`,
+                        sm: `${LAYOUT_CONFIG.METADATA_ROW_PY_DESKTOP}px`,
+                      },
+                      borderBottom:
+                        idx === metadataRows.length - 1
+                          ? "none"
+                          : `1px solid ${colors.text}1a`,
                     }}
                   >
-                    {label}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontFamily,
-                      fontSize: "14px",
-                      opacity: 0.85,
-                      lineHeight: 1.5
-                    }}
-                  >
-                    {value}
-                  </Typography>
-                </Stack>
-              );
-            })}
-          </Box>
-
+                    <Typography
+                      sx={{
+                        ...textSx(TEXT_CONFIG.METADATA_LABEL, ctx),
+                        minWidth: { sm: `${LAYOUT_CONFIG.METADATA_LABEL_MINWIDTH}px` },
+                        flexShrink: 0,
+                      }}
+                    >
+                      {row.label}
+                    </Typography>
+                    <Typography sx={textSx(TEXT_CONFIG.METADATA_VALUE, ctx)}>
+                      {row.value}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            );
+          })()}
         </motion.div>
       </Container>
 
